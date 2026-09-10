@@ -2,7 +2,7 @@ from flask import Flask, render_template_string, request, jsonify
 import sqlite3
 import datetime
 
-app = Flask(_name_)
+app = Flask(__name__)
 DB_FILE = "attendance.db"
 
 # === DATABASE SETUP ===
@@ -286,5 +286,5 @@ def scan():
     conn.close()
     return jsonify({"message": msg})
 
-if _name_ == '_main_':
+if __name__ == '__main__':
     app.run(debug=True)
