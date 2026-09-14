@@ -122,11 +122,11 @@
                             <label class="block text-sm font-medium text-slate-700 mb-1">Status Type *</label>
                             <div class="flex space-x-4">
                                 <label class="flex items-center cursor-pointer">
-                                    <input type="radio" name="itemType" value="LOST" checked class="text-indigo-600 focus:ring-indigo-500">
+                                    <input type="radio" name="itemType" value="LOST" checked onchange="toggleFoundFields()" class="text-indigo-600 focus:ring-indigo-500">
                                     <span class="ml-2 text-sm font-semibold text-rose-600">I Lost Something</span>
                                 </label>
                                 <label class="flex items-center cursor-pointer">
-                                    <input type="radio" name="itemType" value="FOUND" class="text-indigo-600 focus:ring-indigo-500">
+                                    <input type="radio" name="itemType" value="FOUND" onchange="toggleFoundFields()" class="text-indigo-600 focus:ring-indigo-500">
                                     <span class="ml-2 text-sm font-semibold text-emerald-600">I Found Something</span>
                                 </label>
                             </div>
@@ -165,6 +165,30 @@
                             <input type="date" id="date" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
                         </div>
 
+                        <!-- FEATURE 3: Custodian / Turn-over Location (Dynamic Field) -->
+                        <div id="turnoverContainer" class="hidden bg-amber-50 p-3 rounded-lg border border-amber-200">
+                            <label for="turnoverLocation" class="block text-sm font-semibold text-amber-900 mb-1">
+                                <i class="fa-solid fa-building-shield mr-1"></i> Current Location of Found Item (Custodian)
+                            </label>
+                            <select id="turnoverLocation" class="w-full p-2.5 border border-amber-300 bg-white rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                                <option value="With Me (Finder)">With Me (I am keeping it safely for now)</option>
+                                <option value="Campus Security Post 1 (Main Gate)">Campus Security Post 1 (Main Gate)</option>
+                                <option value="Student Affairs Office (OSA)">Office of Student Affairs (OSA)</option>
+                                <option value="Library Front Desk">Library Front Desk</option>
+                                <option value="Faculty Office">Faculty / Department Office</option>
+                            </select>
+                            <p class="text-[11px] text-amber-700 mt-1">For high-value items, please deposit them to Campus Security or OSA.</p>
+                        </div>
+
+                        <!-- FEATURE 1: Secret Verification Question (Dynamic Field) -->
+                        <div id="secretContainer" class="hidden bg-indigo-50 p-3 rounded-lg border border-indigo-200">
+                            <label for="secretQuestion" class="block text-sm font-semibold text-indigo-900 mb-1">
+                                <i class="fa-solid fa-user-lock mr-1"></i> Verification Question for Owner *
+                            </label>
+                            <input type="text" id="secretQuestion" placeholder="e.g., What is the lockscreen photo? What brand of keychain is attached?" class="w-full p-2.5 border border-indigo-300 bg-white rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                            <p class="text-[11px] text-indigo-700 mt-1">This question will be hidden from public view. Claimants must answer this to verify ownership.</p>
+                        </div>
+
                         <!-- Image Upload Field -->
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1"><i class="fa-solid fa-camera text-indigo-600 mr-1"></i> Upload Photo </label>
@@ -184,7 +208,7 @@
                         <!-- Description -->
                         <div>
                             <label for="description" class="block text-sm font-medium text-slate-700 mb-1">Detailed Description *</label>
-                            <textarea id="description" rows="3" required placeholder="Describe distinct features, stickers, contents, brand, color, etc." class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+                            <textarea id="description" rows="3" required placeholder="Describe visible features. (Keep specific unique features secret if found!)" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
                         </div>
 
                         <!-- Contact Info -->
@@ -214,6 +238,49 @@
         </div>
     </div>
 
+    <!-- FEATURE 2: Verification Claim Request Modal -->
+    <div id="claimModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative overflow-hidden">
+            <button onclick="closeClaimModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl z-10">&times;</button>
+            
+            <div class="mb-4">
+                <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-indigo-100 text-indigo-700"><i class="fa-solid fa-shield-halved mr-1"></i>Ownership Verification</span>
+                <h3 class="text-xl font-bold text-slate-800 mt-2">Submit Claim Request</h3>
+                <p class="text-xs text-slate-500 mt-1">Provide proof of ownership to prevent fraudulent claims.</p>
+            </div>
+
+            <form id="claimForm" onsubmit="handleClaimSubmit(event)" class="space-y-3">
+                <input type="hidden" id="claimItemId">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Your Full Name *</label>
+                    <input type="text" id="claimantName" required placeholder="Juan Dela Cruz" class="w-full p-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Student / Employee ID Number *</label>
+                    <input type="text" id="claimantId" required placeholder="2026-XXXXX" class="w-full p-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+
+                <div id="modalQuestionBox" class="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
+                    <label id="modalQuestionLabel" class="block text-xs font-bold text-indigo-900 mb-1">Verification Question:</label>
+                    <input type="text" id="claimantAnswer" required placeholder="Your specific answer..." class="w-full p-2 text-sm border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Additional Details / Proof</label>
+                    <textarea id="claimantProof" rows="2" placeholder="Mention serial numbers, receipts, or distinct markings..." class="w-full p-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-lg shadow-sm transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> Submit Verification Claim
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- JavaScript Application Logic -->
     <script>
         // Default Mock Data
@@ -228,7 +295,9 @@
                 date: "2026-09-08",
                 description: "Has a yellow anime sticker on the top shell. Left inside a black laptop sleeve.",
                 contact: "alex.m@univ.edu",
-                image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80"
+                image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80",
+                secretQuestion: "What is the sticker design on the laptop cover?",
+                turnoverLocation: null
             },
             {
                 id: 2,
@@ -240,7 +309,9 @@
                 date: "2026-09-09",
                 description: "Black Logitech laser presenter pointer found on the podium desk after lecture.",
                 contact: "prof.smith@univ.edu",
-                image: null
+                image: null,
+                secretQuestion: "What color/brand is the battery inside?",
+                turnoverLocation: "Campus Security Post 1 (Main Gate)"
             }
         ];
 
@@ -275,6 +346,20 @@
                 reportTab.classList.remove('hidden');
                 navReportBtn.className = "px-4 py-2 rounded-lg bg-indigo-800 font-medium text-sm transition";
                 navBrowseBtn.className = "px-4 py-2 rounded-lg hover:bg-indigo-600 font-medium text-sm transition";
+            }
+        }
+
+        function toggleFoundFields() {
+            const isFound = document.querySelector('input[name="itemType"]:checked').value === 'FOUND';
+            const secretContainer = document.getElementById('secretContainer');
+            const turnoverContainer = document.getElementById('turnoverContainer');
+
+            if (isFound) {
+                secretContainer.classList.remove('hidden');
+                turnoverContainer.classList.remove('hidden');
+            } else {
+                secretContainer.classList.add('hidden');
+                turnoverContainer.classList.add('hidden');
             }
         }
 
@@ -315,6 +400,10 @@
                     ? `<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-800 border border-amber-200"><i class="fa-solid fa-chalkboard-user mr-1"></i>Teacher/Staff</span>`
                     : `<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-sky-100 text-sky-800 border border-sky-200"><i class="fa-solid fa-user-graduate mr-1"></i>Student</span>`;
                 
+                const turnoverBadge = (item.type === 'FOUND' && item.turnoverLocation)
+                    ? `<div class="mt-2 text-[11px] font-medium text-amber-800 bg-amber-50 px-2 py-1 rounded border border-amber-200 flex items-center gap-1"><i class="fa-solid fa-building-shield text-amber-600"></i><span>${escapeHtml(item.turnoverLocation)}</span></div>`
+                    : '';
+
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden";
                 
@@ -343,11 +432,12 @@
                                 <div class="flex items-center"><i class="fa-solid fa-location-dot w-4 text-slate-400"></i><span class="truncate">${escapeHtml(item.location)}</span></div>
                                 <div class="flex items-center"><i class="fa-solid fa-calendar w-4 text-slate-400"></i><span>${item.date}</span></div>
                             </div>
+                            ${turnoverBadge}
                         </div>
                     </div>
                     <div class="bg-slate-50 px-5 py-3 border-t border-slate-100 flex gap-2">
                         <button onclick="openModal(${item.id})" class="flex-1 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg transition">
-                            Details
+                            Details & Claim
                         </button>
                     </div>
                 `;
@@ -403,17 +493,20 @@
         function handleFormSubmit(e) {
             e.preventDefault();
             
+            const itemType = document.querySelector('input[name="itemType"]:checked').value;
             const newItem = {
                 id: Date.now(),
                 userRole: document.querySelector('input[name="userRole"]:checked').value,
                 title: document.getElementById('title').value,
-                type: document.querySelector('input[name="itemType"]:checked').value,
+                type: itemType,
                 category: document.getElementById('category').value,
                 location: document.getElementById('location').value,
                 date: document.getElementById('date').value,
                 description: document.getElementById('description').value,
                 contact: document.getElementById('contact').value,
-                image: currentImageData
+                image: currentImageData,
+                secretQuestion: itemType === 'FOUND' ? document.getElementById('secretQuestion').value : null,
+                turnoverLocation: itemType === 'FOUND' ? document.getElementById('turnoverLocation').value : null
             };
 
             items.unshift(newItem);
@@ -422,6 +515,8 @@
             document.getElementById('reportForm').reset();
             document.getElementById('imagePreview').classList.add('hidden');
             document.getElementById('uploadPrompt').classList.remove('hidden');
+            document.getElementById('secretContainer').classList.add('hidden');
+            document.getElementById('turnoverContainer').classList.add('hidden');
             currentImageData = null;
             
             saveAndRender();
@@ -443,6 +538,10 @@
                 ? `<img src="${item.image}" class="w-full h-52 object-cover rounded-lg mb-4" alt="Item preview">` 
                 : '';
 
+            const turnoverInfo = (item.type === 'FOUND' && item.turnoverLocation)
+                ? `<div class="bg-amber-50 p-3 rounded-lg border border-amber-200 text-xs text-amber-900 mb-3"><i class="fa-solid fa-building-shield text-amber-600 mr-1.5"></i><strong>Safe Custody Location:</strong> ${escapeHtml(item.turnoverLocation)}</div>`
+                : '';
+
             modalContent.innerHTML = `
                 ${imageDisplay}
                 <div class="mb-3 flex justify-between items-center flex-wrap gap-2">
@@ -453,6 +552,8 @@
                 <p class="text-xs text-indigo-600 font-semibold mb-3">${escapeHtml(item.category)}</p>
                 <p class="text-slate-600 text-sm mb-4">${escapeHtml(item.description)}</p>
                 
+                ${turnoverInfo}
+
                 <div class="bg-slate-50 p-4 rounded-lg space-y-2 text-sm border border-slate-100 mb-4">
                     <div class="flex items-center text-slate-600"><i class="fa-solid fa-location-dot w-6 text-indigo-500"></i><strong>Location:</strong>&nbsp;${escapeHtml(item.location)}</div>
                     <div class="flex items-center text-slate-600"><i class="fa-solid fa-calendar w-6 text-indigo-500"></i><strong>Date:</strong>&nbsp;${item.date}</div>
@@ -464,8 +565,8 @@
                 </div>
 
                 <div class="flex gap-2">
-                    <button onclick="deleteItem(${item.id})" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-circle-check"></i> Mark as Claimed / Resolved (Remove)
+                    <button onclick="openClaimModal(${item.id})" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-shield-check"></i> Claim / Verify Ownership
                     </button>
                 </div>
             `;
@@ -473,18 +574,58 @@
             document.getElementById('itemModal').classList.remove('hidden');
         }
 
-        // Delete Item Functionality
+        // Open Verification Claim Modal
+        function openClaimModal(id) {
+            const item = items.find(i => i.id === id);
+            if (!item) return;
+
+            closeModal();
+            document.getElementById('claimItemId').value = item.id;
+            
+            const questionBox = document.getElementById('modalQuestionBox');
+            const questionLabel = document.getElementById('modalQuestionLabel');
+
+            if (item.type === 'FOUND' && item.secretQuestion) {
+                questionLabel.innerHTML = `<i class="fa-solid fa-circle-question mr-1"></i> ${escapeHtml(item.secretQuestion)}`;
+                questionBox.classList.remove('hidden');
+            } else {
+                questionLabel.innerHTML = `<i class="fa-solid fa-circle-question mr-1"></i> Verification Question: Describe a specific detail or content inside:`;
+                questionBox.classList.remove('hidden');
+            }
+
+            document.getElementById('claimModal').classList.remove('hidden');
+        }
+
+        // Submit Claim Verification
+        function handleClaimSubmit(e) {
+            e.preventDefault();
+            const itemId = parseInt(document.getElementById('claimItemId').value);
+            const name = document.getElementById('claimantName').value;
+            const idNum = document.getElementById('claimantId').value;
+
+            alert(`Thank you, ${name} (${idNum})!\n\nYour claim verification request has been submitted. The finder/admin will review your response. Once verified, this listing will be marked as resolved.`);
+            
+            // Auto-resolve item after successful claim submission
+            deleteItem(itemId);
+            closeClaimModal();
+            document.getElementById('claimForm').reset();
+        }
+
         function deleteItem(id) {
             items = items.filter(item => item.id !== id);
             saveAndRender();
-            closeModal();
         }
 
         function closeModal() {
             document.getElementById('itemModal').classList.add('hidden');
         }
 
+        function closeClaimModal() {
+            document.getElementById('claimModal').classList.add('hidden');
+        }
+
         function escapeHtml(str) {
+            if(!str) return '';
             return str.replace(/[&<>"']/g, function(m) {
                 return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
             });
