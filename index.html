@@ -21,12 +21,17 @@
                     <p class="text-xs text-indigo-200">Official Student & Faculty Portal</p>
                 </div>
             </div>
-            <nav class="flex space-x-2">
-                <button id="navBrowseBtn" onclick="switchTab('browse')" class="px-4 py-2 rounded-lg bg-indigo-800 font-medium text-sm transition">
-                    <i class="fa-solid fa-magnifying-glass mr-2"></i>Browse Items
+            <nav class="flex items-center space-x-2">
+                <button id="navBrowseBtn" onclick="switchTab('browse')" class="px-3 py-2 rounded-lg bg-indigo-800 font-medium text-xs sm:text-sm transition">
+                    <i class="fa-solid fa-magnifying-glass mr-1.5"></i>Browse
                 </button>
-                <button id="navReportBtn" onclick="switchTab('report')" class="px-4 py-2 rounded-lg hover:bg-indigo-600 font-medium text-sm transition">
-                    <i class="fa-solid fa-plus-circle mr-2"></i>Report Item
+                <button id="navReportBtn" onclick="switchTab('report')" class="px-3 py-2 rounded-lg hover:bg-indigo-600 font-medium text-xs sm:text-sm transition">
+                    <i class="fa-solid fa-plus-circle mr-1.5"></i>Report
+                </button>
+                <!-- Admin Panel Switcher -->
+                <button id="navAdminBtn" onclick="switchTab('admin')" class="px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 font-bold text-xs sm:text-sm transition text-slate-900 shadow-sm flex items-center">
+                    <i class="fa-solid fa-user-shield mr-1.5"></i>Admin Panel
+                    <span id="pendingBadge" class="ml-1.5 bg-rose-600 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
                 </button>
             </nav>
         </div>
@@ -39,15 +44,11 @@
         <section id="browseTab">
             <!-- Search & Filters -->
             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-8 flex flex-col gap-4">
-                
                 <div class="flex flex-col md:flex-row gap-4 justify-between items-center">
-                    <!-- Search Input -->
                     <div class="relative w-full md:w-1/2">
                         <i class="fa-solid fa-search absolute left-3 top-3.5 text-slate-400"></i>
-                        <input type="text" id="searchInput" oninput="filterItems()" placeholder="Search by name, description, or location..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <input type="text" id="searchInput" oninput="filterItems()" placeholder="Search by name, description, or location..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
                     </div>
-
-                    <!-- Category Dropdown -->
                     <select id="categorySelect" onchange="filterItems()" class="w-full md:w-auto px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="ALL">All Categories</option>
                         <option value="Electronics">Electronics</option>
@@ -59,33 +60,25 @@
                     </select>
                 </div>
 
-                <!-- Dual Filter Row: Item Type & Role Filter -->
                 <div class="flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-3">
-                    <!-- Type Filter Buttons -->
                     <div class="flex items-center space-x-2">
                         <span class="text-xs font-semibold text-slate-400 uppercase mr-1">Status:</span>
                         <button onclick="setTypeFilter('ALL')" id="filterTypeAll" class="type-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white">All</button>
                         <button onclick="setTypeFilter('LOST')" id="filterTypeLost" class="type-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">Lost</button>
                         <button onclick="setTypeFilter('FOUND')" id="filterTypeFound" class="type-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">Found</button>
                     </div>
-
-                    <!-- Role Filter Buttons (Student vs Teacher) -->
                     <div class="flex items-center space-x-2">
-                        <span class="text-xs font-semibold text-slate-400 uppercase mr-1">Filter by User:</span>
+                        <span class="text-xs font-semibold text-slate-400 uppercase mr-1">User:</span>
                         <button onclick="setRoleFilter('ALL')" id="filterRoleAll" class="role-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700 text-white">Everyone</button>
                         <button onclick="setRoleFilter('STUDENT')" id="filterRoleStudent" class="role-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200"><i class="fa-solid fa-user-graduate mr-1"></i>Students</button>
                         <button onclick="setRoleFilter('TEACHER')" id="filterRoleTeacher" class="role-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200"><i class="fa-solid fa-chalkboard-user mr-1"></i>Teachers/Staff</button>
                     </div>
                 </div>
-
             </div>
 
             <!-- Items Grid -->
-            <div id="itemsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- Dynamic cards populated by JavaScript -->
-            </div>
+            <div id="itemsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
 
-            <!-- Empty State Message -->
             <div id="noResults" class="hidden text-center py-12">
                 <i class="fa-solid fa-ghost text-5xl text-slate-300 mb-3"></i>
                 <p class="text-slate-500 text-lg">No active lost or found records right now.</p>
@@ -99,154 +92,158 @@
                 <h2 class="text-2xl font-bold mb-2 text-slate-800">Report a Lost or Found Item</h2>
                 <p class="text-slate-500 text-sm mb-6">Fill out the form below to register an item record.</p>
 
-                <form id="reportForm" onsubmit="handleFormSubmit(event)">
-                    <div class="space-y-4">
-                        
-                        <!-- Role Selector (Student vs Teacher) -->
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">I am a: *</label>
-                            <div class="grid grid-cols-2 gap-4">
-                                <label class="flex items-center justify-center p-3 border rounded-lg cursor-pointer transition hover:bg-slate-50 [&:has(:checked)]:border-indigo-600 [&:has(:checked)]:bg-indigo-50/50">
-                                    <input type="radio" name="userRole" value="STUDENT" checked class="text-indigo-600 focus:ring-indigo-500">
-                                    <span class="ml-2 text-sm font-medium text-slate-700"><i class="fa-solid fa-user-graduate mr-1.5 text-indigo-600"></i>Student</span>
-                                </label>
-                                <label class="flex items-center justify-center p-3 border rounded-lg cursor-pointer transition hover:bg-slate-50 [&:has(:checked)]:border-indigo-600 [&:has(:checked)]:bg-indigo-50/50">
-                                    <input type="radio" name="userRole" value="TEACHER" class="text-indigo-600 focus:ring-indigo-500">
-                                    <span class="ml-2 text-sm font-medium text-slate-700"><i class="fa-solid fa-chalkboard-user mr-1.5 text-indigo-600"></i>Teacher / Staff</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Listing Type -->
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Status Type *</label>
-                            <div class="flex space-x-4">
-                                <label class="flex items-center cursor-pointer">
-                                    <input type="radio" name="itemType" value="LOST" checked onchange="toggleFoundFields()" class="text-indigo-600 focus:ring-indigo-500">
-                                    <span class="ml-2 text-sm font-semibold text-rose-600">I Lost Something</span>
-                                </label>
-                                <label class="flex items-center cursor-pointer">
-                                    <input type="radio" name="itemType" value="FOUND" onchange="toggleFoundFields()" class="text-indigo-600 focus:ring-indigo-500">
-                                    <span class="ml-2 text-sm font-semibold text-emerald-600">I Found Something</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Item Title -->
-                        <div>
-                            <label for="title" class="block text-sm font-medium text-slate-700 mb-1">Item Name / Title *</label>
-                            <input type="text" id="title" required placeholder="e.g. Blue Hydro Flask, Student ID Card" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <!-- Category -->
-                            <div>
-                                <label for="category" class="block text-sm font-medium text-slate-700 mb-1">Category *</label>
-                                <select id="category" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                                    <option value="">Select Category</option>
-                                    <option value="Electronics">Electronics</option>
-                                    <option value="ID/Documents">ID/Documents</option>
-                                    <option value="Keys">Keys</option>
-                                    <option value="Clothing">Clothing</option>
-                                    <option value="Bags">Bags</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <!-- Location -->
-                            <div>
-                                <label for="location" class="block text-sm font-medium text-slate-700 mb-1">Location *</label>
-                                <input type="text" id="location" required placeholder="e.g. Faculty Room, Library 2nd Floor" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                            </div>
-                        </div>
-
-                        <!-- Date -->
-                        <div>
-                            <label for="date" class="block text-sm font-medium text-slate-700 mb-1">Date (Lost or Found) *</label>
-                            <input type="date" id="date" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                        </div>
-
-                        <!-- FEATURE 3: Custodian / Turn-over Location (Dynamic Field) -->
-                        <div id="turnoverContainer" class="hidden bg-amber-50 p-3 rounded-lg border border-amber-200">
-                            <label for="turnoverLocation" class="block text-sm font-semibold text-amber-900 mb-1">
-                                <i class="fa-solid fa-building-shield mr-1"></i> Current Location of Found Item (Custodian)
+                <form id="reportForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">I am a: *</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="flex items-center justify-center p-3 border rounded-lg cursor-pointer transition hover:bg-slate-50 [&:has(:checked)]:border-indigo-600 [&:has(:checked)]:bg-indigo-50/50">
+                                <input type="radio" name="userRole" value="STUDENT" checked class="text-indigo-600 focus:ring-indigo-500">
+                                <span class="ml-2 text-sm font-medium text-slate-700"><i class="fa-solid fa-user-graduate mr-1.5 text-indigo-600"></i>Student</span>
                             </label>
-                            <select id="turnoverLocation" class="w-full p-2.5 border border-amber-300 bg-white rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm">
-                                <option value="With Me (Finder)">With Me (I am keeping it safely for now)</option>
-                                <option value="Campus Security Post 1 (Main Gate)">Campus Security Post 1 (Main Gate)</option>
-                                <option value="Student Affairs Office (OSA)">Office of Student Affairs (OSA)</option>
-                                <option value="Library Front Desk">Library Front Desk</option>
-                                <option value="Faculty Office">Faculty / Department Office</option>
-                            </select>
-                            <p class="text-[11px] text-amber-700 mt-1">For high-value items, please deposit them to Campus Security or OSA.</p>
-                        </div>
-
-                        <!-- FEATURE 1: Secret Verification Question (Dynamic Field) -->
-                        <div id="secretContainer" class="hidden bg-indigo-50 p-3 rounded-lg border border-indigo-200">
-                            <label for="secretQuestion" class="block text-sm font-semibold text-indigo-900 mb-1">
-                                <i class="fa-solid fa-user-lock mr-1"></i> Verification Question for Owner *
+                            <label class="flex items-center justify-center p-3 border rounded-lg cursor-pointer transition hover:bg-slate-50 [&:has(:checked)]:border-indigo-600 [&:has(:checked)]:bg-indigo-50/50">
+                                <input type="radio" name="userRole" value="TEACHER" class="text-indigo-600 focus:ring-indigo-500">
+                                <span class="ml-2 text-sm font-medium text-slate-700"><i class="fa-solid fa-chalkboard-user mr-1.5 text-indigo-600"></i>Teacher / Staff</span>
                             </label>
-                            <input type="text" id="secretQuestion" placeholder="e.g., What is the lockscreen photo? What brand of keychain is attached?" class="w-full p-2.5 border border-indigo-300 bg-white rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
-                            <p class="text-[11px] text-indigo-700 mt-1">This question will be hidden from public view. Claimants must answer this to verify ownership.</p>
                         </div>
-
-                        <!-- Image Upload Field -->
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1"><i class="fa-solid fa-camera text-indigo-600 mr-1"></i> Upload Photo </label>
-                            <div class="flex items-center justify-center w-full">
-                                <label for="imageUpload" class="flex flex-col items-center justify-center w-full h-36 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition relative overflow-hidden">
-                                    <div id="uploadPrompt" class="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-indigo-500 mb-2"></i>
-                                        <p class="text-xs text-slate-600 font-medium"><span class="font-bold text-indigo-600">Click to upload</span> or drag picture here</p>
-                                        <p class="text-[10px] text-slate-400 mt-1">PNG, JPG, JPEG or WEBP</p>
-                                    </div>
-                                    <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-cover rounded-lg" alt="Preview">
-                                    <input id="imageUpload" type="file" accept="image/*" class="hidden" onchange="handleImagePreview(event)">
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Description -->
-                        <div>
-                            <label for="description" class="block text-sm font-medium text-slate-700 mb-1">Detailed Description *</label>
-                            <textarea id="description" rows="3" required placeholder="Describe visible features. (Keep specific unique features secret if found!)" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
-                        </div>
-
-                        <!-- Contact Info -->
-                        <div>
-                            <label for="contact" class="block text-sm font-medium text-slate-700 mb-1">Your Contact Email/Phone *</label>
-                            <input type="text" id="contact" required placeholder="name@univ.edu or (555) 000-0000" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition mt-4">
-                            Submit & Record Listing
-                        </button>
                     </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Status Type *</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="itemType" value="LOST" checked onchange="toggleFoundFields()" class="text-indigo-600 focus:ring-indigo-500">
+                                <span class="ml-2 text-sm font-semibold text-rose-600">I Lost Something</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="itemType" value="FOUND" onchange="toggleFoundFields()" class="text-indigo-600 focus:ring-indigo-500">
+                                <span class="ml-2 text-sm font-semibold text-emerald-600">I Found Something</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-slate-700 mb-1">Item Name / Title *</label>
+                        <input type="text" id="title" required placeholder="e.g. Blue Hydro Flask, Student ID Card" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-slate-700 mb-1">Category *</label>
+                            <select id="category" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                                <option value="">Select Category</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="ID/Documents">ID/Documents</option>
+                                <option value="Keys">Keys</option>
+                                <option value="Clothing">Clothing</option>
+                                <option value="Bags">Bags</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="location" class="block text-sm font-medium text-slate-700 mb-1">Location *</label>
+                            <input type="text" id="location" required placeholder="e.g. Faculty Room, Library" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="date" class="block text-sm font-medium text-slate-700 mb-1">Date (Lost or Found) *</label>
+                        <input type="date" id="date" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                    </div>
+
+                    <!-- Custodian Location -->
+                    <div id="turnoverContainer" class="hidden bg-amber-50 p-3 rounded-lg border border-amber-200">
+                        <label for="turnoverLocation" class="block text-sm font-semibold text-amber-900 mb-1">
+                            <i class="fa-solid fa-building-shield mr-1"></i> Current Custody Location
+                        </label>
+                        <select id="turnoverLocation" class="w-full p-2.5 border border-amber-300 bg-white rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                            <option value="With Me (Finder)">With Me (I am keeping it safely for now)</option>
+                            <option value="Campus Security Post 1 (Main Gate)">Campus Security Post 1 (Main Gate)</option>
+                            <option value="Student Affairs Office (OSA)">Office of Student Affairs (OSA)</option>
+                            <option value="Library Front Desk">Library Front Desk</option>
+                        </select>
+                    </div>
+
+                    <!-- Secret Verification Question -->
+                    <div id="secretContainer" class="hidden bg-indigo-50 p-3 rounded-lg border border-indigo-200">
+                        <label for="secretQuestion" class="block text-sm font-semibold text-indigo-900 mb-1">
+                            <i class="fa-solid fa-user-lock mr-1"></i> Verification Question for Claimant *
+                        </label>
+                        <input type="text" id="secretQuestion" placeholder="e.g., What design/sticker is on the back?" class="w-full p-2.5 border border-indigo-300 bg-white rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1"><i class="fa-solid fa-camera text-indigo-600 mr-1"></i> Upload Photo </label>
+                        <div class="flex items-center justify-center w-full">
+                            <label for="imageUpload" class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition relative overflow-hidden">
+                                <div id="uploadPrompt" class="flex flex-col items-center justify-center">
+                                    <i class="fa-solid fa-cloud-arrow-up text-2xl text-indigo-500 mb-1"></i>
+                                    <p class="text-xs text-slate-600"><span class="font-bold text-indigo-600">Click to upload photo</span></p>
+                                </div>
+                                <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-cover rounded-lg" alt="Preview">
+                                <input id="imageUpload" type="file" accept="image/*" class="hidden" onchange="handleImagePreview(event)">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-slate-700 mb-1">Detailed Description *</label>
+                        <textarea id="description" rows="3" required placeholder="Describe visible features..." class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="contact" class="block text-sm font-medium text-slate-700 mb-1">Your Contact Email/Phone *</label>
+                        <input type="text" id="contact" required placeholder="name@univ.edu or 09XXXXXXXXX" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition">
+                        Submit Item Record
+                    </button>
                 </form>
+            </div>
+        </section>
+
+
+        <!-- ================= ADMIN VERIFICATION PANEL (4) ================= -->
+        <section id="adminTab" class="hidden max-w-4xl mx-auto">
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-shield-halved text-2xl text-amber-600"></i>
+                    <div>
+                        <h3 class="font-bold text-slate-800">Admin Claim Approval Panel</h3>
+                        <p class="text-xs text-slate-600">Suriin ang mga sumasagot na claim bago ito permanenteng ma-approve at ma-remove sa portal.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="claimsList" class="space-y-4">
+                <!-- Dynamic Pending Claims populated by JS -->
+            </div>
+
+            <div id="noClaims" class="hidden text-center py-12 bg-white rounded-xl border border-slate-200">
+                <i class="fa-solid fa-circle-check text-4xl text-emerald-400 mb-2"></i>
+                <p class="text-slate-500 text-sm font-medium">Walang pending claim verification requests sa ngayon.</p>
             </div>
         </section>
 
     </main>
 
-    <!-- Item Details Modal -->
+    <!-- Public Item Details Modal -->
     <div id="itemModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
         <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative overflow-hidden">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl z-10">&times;</button>
-            <div id="modalContent">
-                <!-- Injected via JavaScript -->
-            </div>
+            <div id="modalContent"></div>
         </div>
     </div>
 
-    <!-- FEATURE 2: Verification Claim Request Modal -->
+    <!-- Verification Claim Request Modal for Students/Users -->
     <div id="claimModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
         <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative overflow-hidden">
             <button onclick="closeClaimModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl z-10">&times;</button>
             
             <div class="mb-4">
-                <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-indigo-100 text-indigo-700"><i class="fa-solid fa-shield-halved mr-1"></i>Ownership Verification</span>
-                <h3 class="text-xl font-bold text-slate-800 mt-2">Submit Claim Request</h3>
-                <p class="text-xs text-slate-500 mt-1">Provide proof of ownership to prevent fraudulent claims.</p>
+                <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-indigo-100 text-indigo-700"><i class="fa-solid fa-shield-halved mr-1"></i>Claim Verification</span>
+                <h3 class="text-xl font-bold text-slate-800 mt-2">Submit Proof to Admin</h3>
+                <p class="text-xs text-slate-500 mt-1">Ang iyong mga sagot ay isusumite sa Portal Admin para i-review at i-approve.</p>
             </div>
 
             <form id="claimForm" onsubmit="handleClaimSubmit(event)" class="space-y-3">
@@ -258,23 +255,28 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Student / Employee ID Number *</label>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Student / Employee ID *</label>
                     <input type="text" id="claimantId" required placeholder="2026-XXXXX" class="w-full p-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Your Contact Phone / Email *</label>
+                    <input type="text" id="claimantContact" required placeholder="09123456789" class="w-full p-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
 
                 <div id="modalQuestionBox" class="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
                     <label id="modalQuestionLabel" class="block text-xs font-bold text-indigo-900 mb-1">Verification Question:</label>
-                    <input type="text" id="claimantAnswer" required placeholder="Your specific answer..." class="w-full p-2 text-sm border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="text" id="claimantAnswer" required placeholder="Ibigay ang iyong sagot..." class="w-full p-2 text-sm border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Additional Details / Proof</label>
-                    <textarea id="claimantProof" rows="2" placeholder="Mention serial numbers, receipts, or distinct markings..." class="w-full p-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Karagdagang Patunay / Details</label>
+                    <textarea id="claimantProof" rows="2" placeholder="Serial number, resibo, o iba pang katibayan..." class="w-full p-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
                 </div>
 
                 <div class="pt-2">
-                    <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-lg shadow-sm transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-paper-plane"></i> Submit Verification Claim
+                    <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-lg shadow-sm transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> Submit to Admin for Approval
                     </button>
                 </div>
             </form>
@@ -283,7 +285,9 @@
 
     <!-- JavaScript Application Logic -->
     <script>
-        // Default Mock Data
+        // Password Admin Access (Pinakasimpleng Security)
+        const ADMIN_PIN = "1234"; // Pwedeng palitan ang Password dito
+
         const initialItems = [
             {
                 id: 1,
@@ -293,30 +297,17 @@
                 category: "Electronics",
                 location: "Central Library, 3rd Floor",
                 date: "2026-09-08",
-                description: "Has a yellow anime sticker on the top shell. Left inside a black laptop sleeve.",
+                description: "May sticker sa likod. Naiiwan sa black sleeve.",
                 contact: "alex.m@univ.edu",
                 image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80",
-                secretQuestion: "What is the sticker design on the laptop cover?",
+                secretQuestion: "Ano ang sticker design sa likod ng laptop?",
                 turnoverLocation: null
-            },
-            {
-                id: 2,
-                userRole: "TEACHER",
-                title: "Wireless Presenter Pointer",
-                type: "FOUND",
-                category: "Electronics",
-                location: "Science Building Room 302",
-                date: "2026-09-09",
-                description: "Black Logitech laser presenter pointer found on the podium desk after lecture.",
-                contact: "prof.smith@univ.edu",
-                image: null,
-                secretQuestion: "What color/brand is the battery inside?",
-                turnoverLocation: "Campus Security Post 1 (Main Gate)"
             }
         ];
 
-        // Load items from LocalStorage or fallback to defaults
+        // Storage setup
         let items = JSON.parse(localStorage.getItem('campus_items')) || initialItems;
+        let claims = JSON.parse(localStorage.getItem('campus_claims')) || [];
         let currentTypeFilter = 'ALL';
         let currentRoleFilter = 'ALL';
         let currentImageData = null;
@@ -327,52 +318,58 @@
 
         function saveAndRender() {
             localStorage.setItem('campus_items', JSON.stringify(items));
+            localStorage.setItem('campus_claims', JSON.stringify(claims));
+            updatePendingBadge();
             filterItems();
+            renderAdminClaims();
+        }
+
+        function updatePendingBadge() {
+            const badge = document.getElementById('pendingBadge');
+            if (claims.length > 0) {
+                badge.innerText = claims.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
         }
 
         function switchTab(tab) {
             const browseTab = document.getElementById('browseTab');
             const reportTab = document.getElementById('reportTab');
-            const navBrowseBtn = document.getElementById('navBrowseBtn');
-            const navReportBtn = document.getElementById('navReportBtn');
+            const adminTab = document.getElementById('adminTab');
 
-            if (tab === 'browse') {
-                browseTab.classList.remove('hidden');
-                reportTab.classList.add('hidden');
-                navBrowseBtn.className = "px-4 py-2 rounded-lg bg-indigo-800 font-medium text-sm transition";
-                navReportBtn.className = "px-4 py-2 rounded-lg hover:bg-indigo-600 font-medium text-sm transition";
-            } else {
-                browseTab.classList.add('hidden');
-                reportTab.classList.remove('hidden');
-                navReportBtn.className = "px-4 py-2 rounded-lg bg-indigo-800 font-medium text-sm transition";
-                navBrowseBtn.className = "px-4 py-2 rounded-lg hover:bg-indigo-600 font-medium text-sm transition";
+            if (tab === 'admin') {
+                const pass = prompt("Maglagay ng Admin PIN/Password para buksan ang Admin Review Panel:");
+                if (pass !== ADMIN_PIN) {
+                    alert("Maling Password! Ikaw lang na may-hawak ng website ang pwedeng pumasok dito.");
+                    return;
+                }
             }
+
+            browseTab.classList.add('hidden');
+            reportTab.classList.add('hidden');
+            adminTab.classList.add('hidden');
+
+            if (tab === 'browse') browseTab.classList.remove('hidden');
+            if (tab === 'report') reportTab.classList.remove('hidden');
+            if (tab === 'admin') adminTab.classList.remove('hidden');
         }
 
         function toggleFoundFields() {
             const isFound = document.querySelector('input[name="itemType"]:checked').value === 'FOUND';
-            const secretContainer = document.getElementById('secretContainer');
-            const turnoverContainer = document.getElementById('turnoverContainer');
-
-            if (isFound) {
-                secretContainer.classList.remove('hidden');
-                turnoverContainer.classList.remove('hidden');
-            } else {
-                secretContainer.classList.add('hidden');
-                turnoverContainer.classList.add('hidden');
-            }
+            document.getElementById('secretContainer').classList.toggle('hidden', !isFound);
+            document.getElementById('turnoverContainer').classList.toggle('hidden', !isFound);
         }
 
-        // Processing Image File to Data URL
         function handleImagePreview(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     currentImageData = e.target.result;
-                    const preview = document.getElementById('imagePreview');
-                    preview.src = currentImageData;
-                    preview.classList.remove('hidden');
+                    document.getElementById('imagePreview').src = currentImageData;
+                    document.getElementById('imagePreview').classList.remove('hidden');
                     document.getElementById('uploadPrompt').classList.add('hidden');
                 }
                 reader.readAsDataURL(file);
@@ -387,57 +384,40 @@
             if (data.length === 0) {
                 noResults.classList.remove('hidden');
                 return;
-            } else {
-                noResults.classList.add('hidden');
             }
+            noResults.classList.add('hidden');
 
             data.forEach(item => {
                 const isLost = item.type === 'LOST';
                 const isTeacher = item.userRole === 'TEACHER';
                 
-                const badgeColor = isLost ? 'bg-rose-100 text-rose-700 border-rose-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                const badgeColor = isLost ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700';
                 const roleBadge = isTeacher 
-                    ? `<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-800 border border-amber-200"><i class="fa-solid fa-chalkboard-user mr-1"></i>Teacher/Staff</span>`
-                    : `<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-sky-100 text-sky-800 border border-sky-200"><i class="fa-solid fa-user-graduate mr-1"></i>Student</span>`;
+                    ? `<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-800"><i class="fa-solid fa-chalkboard-user mr-1"></i>Teacher/Staff</span>`
+                    : `<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-sky-100 text-sky-800"><i class="fa-solid fa-user-graduate mr-1"></i>Student</span>`;
                 
-                const turnoverBadge = (item.type === 'FOUND' && item.turnoverLocation)
-                    ? `<div class="mt-2 text-[11px] font-medium text-amber-800 bg-amber-50 px-2 py-1 rounded border border-amber-200 flex items-center gap-1"><i class="fa-solid fa-building-shield text-amber-600"></i><span>${escapeHtml(item.turnoverLocation)}</span></div>`
-                    : '';
+                const imageContainer = item.image 
+                    ? `<img src="${item.image}" class="w-full h-44 object-cover">` 
+                    : `<div class="w-full h-36 bg-slate-100 flex flex-col items-center justify-center text-slate-400"><i class="fa-solid fa-image text-3xl"></i></div>`;
 
                 const card = document.createElement('div');
-                card.className = "bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden";
-                
-                // Display Uploaded Photo OR Default Icon Box
-                const imageContainer = item.image 
-                    ? `<img src="${item.image}" class="w-full h-44 object-cover" alt="Item photo">` 
-                    : `<div class="w-full h-36 bg-slate-100 flex flex-col items-center justify-center text-slate-400 gap-1"><i class="fa-solid fa-image text-3xl"></i><span class="text-[10px]">No photo uploaded</span></div>`;
-
+                card.className = "bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden";
                 card.innerHTML = `
                     <div>
-                        <div class="relative">
-                            ${imageContainer}
-                        </div>
-                        <div class="p-5">
-                            <div class="flex items-center justify-between gap-1 mb-3">
-                                <span class="px-2.5 py-0.5 text-xs font-bold rounded-full border ${badgeColor}">
-                                    ${item.type}
-                                </span>
+                        ${imageContainer}
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="px-2 py-0.5 text-xs font-bold rounded-full ${badgeColor}">${item.type}</span>
                                 ${roleBadge}
                             </div>
-                            <h3 class="font-bold text-slate-800 text-lg mb-1 line-clamp-1">${escapeHtml(item.title)}</h3>
-                            <p class="text-xs text-indigo-600 font-semibold mb-3">${escapeHtml(item.category)}</p>
-                            <p class="text-slate-600 text-sm mb-4 line-clamp-2">${escapeHtml(item.description)}</p>
-                            
-                            <div class="space-y-1.5 text-xs text-slate-500">
-                                <div class="flex items-center"><i class="fa-solid fa-location-dot w-4 text-slate-400"></i><span class="truncate">${escapeHtml(item.location)}</span></div>
-                                <div class="flex items-center"><i class="fa-solid fa-calendar w-4 text-slate-400"></i><span>${item.date}</span></div>
-                            </div>
-                            ${turnoverBadge}
+                            <h3 class="font-bold text-slate-800 text-base mb-1 line-clamp-1">${escapeHtml(item.title)}</h3>
+                            <p class="text-xs text-indigo-600 font-semibold mb-2">${escapeHtml(item.category)}</p>
+                            <p class="text-slate-600 text-xs mb-3 line-clamp-2">${escapeHtml(item.description)}</p>
                         </div>
                     </div>
-                    <div class="bg-slate-50 px-5 py-3 border-t border-slate-100 flex gap-2">
-                        <button onclick="openModal(${item.id})" class="flex-1 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg transition">
-                            Details & Claim
+                    <div class="bg-slate-50 p-3 border-t border-slate-100">
+                        <button onclick="openModal(${item.id})" class="w-full py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg">
+                            Details & Claim Request
                         </button>
                     </div>
                 `;
@@ -445,56 +425,128 @@
             });
         }
 
-        // Type Filter Controls
-        function setTypeFilter(type) {
-            currentTypeFilter = type;
-            document.querySelectorAll('.type-filter-btn').forEach(btn => {
-                btn.className = "type-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200";
-            });
-            if(type === 'ALL') document.getElementById('filterTypeAll').className = "type-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white";
-            if(type === 'LOST') document.getElementById('filterTypeLost').className = "type-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white";
-            if(type === 'FOUND') document.getElementById('filterTypeFound').className = "type-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white";
+        // Handle Claim Request Submission by User
+        function handleClaimSubmit(e) {
+            e.preventDefault();
+            const itemId = parseInt(document.getElementById('claimItemId').value);
+            const targetItem = items.find(i => i.id === itemId);
 
-            filterItems();
+            const newClaim = {
+                claimId: Date.now(),
+                itemId: itemId,
+                itemTitle: targetItem.title,
+                claimantName: document.getElementById('claimantName').value,
+                claimantId: document.getElementById('claimantId').value,
+                claimantContact: document.getElementById('claimantContact').value,
+                claimantAnswer: document.getElementById('claimantAnswer').value,
+                claimantProof: document.getElementById('claimantProof').value,
+                dateSubmitted: new Date().toLocaleString()
+            };
+
+            claims.push(newClaim);
+            saveAndRender();
+
+            alert("Naisumite na ang iyong claim request! Susuriin ito ng Admin. Ikaw ay pakikipag-ugnayan kapag na-verify na ang iyong katibayan.");
+            closeClaimModal();
+            document.getElementById('claimForm').reset();
         }
 
-        // Role Filter Controls (Student vs Teacher)
-        function setRoleFilter(role) {
-            currentRoleFilter = role;
-            document.querySelectorAll('.role-filter-btn').forEach(btn => {
-                btn.className = "role-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200";
-            });
-            if(role === 'ALL') document.getElementById('filterRoleAll').className = "role-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700 text-white";
-            if(role === 'STUDENT') document.getElementById('filterRoleStudent').className = "role-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-sky-600 text-white";
-            if(role === 'TEACHER') document.getElementById('filterRoleTeacher').className = "role-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-600 text-white";
+        // Render Admin Claims Review Panel
+        function renderAdminClaims() {
+            const claimsList = document.getElementById('claimsList');
+            const noClaims = document.getElementById('noClaims');
+            claimsList.innerHTML = '';
 
-            filterItems();
+            if (claims.length === 0) {
+                noClaims.classList.remove('hidden');
+                return;
+            }
+            noClaims.classList.add('hidden');
+
+            claims.forEach(claim => {
+                const item = items.find(i => i.id === claim.itemId);
+
+                const claimCard = document.createElement('div');
+                claimCard.className = "bg-white p-5 rounded-xl border border-amber-200 shadow-sm relative";
+                claimCard.innerHTML = `
+                    <div class="flex justify-between items-start border-b border-slate-100 pb-3 mb-3">
+                        <div>
+                            <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded uppercase">Pending Approval</span>
+                            <h4 class="font-bold text-slate-800 text-base mt-1">Item: ${escapeHtml(claim.itemTitle)}</h4>
+                            <p class="text-xs text-slate-400">Date Claimed: ${claim.dateSubmitted}</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs bg-slate-50 p-3 rounded-lg border border-slate-100 mb-4">
+                        <div>
+                            <p class="font-bold text-slate-700">Claimant Info:</p>
+                            <p><span class="text-slate-500">Name:</span> ${escapeHtml(claim.claimantName)}</p>
+                            <p><span class="text-slate-500">Student ID:</span> ${escapeHtml(claim.claimantId)}</p>
+                            <p><span class="text-slate-500">Contact:</span> ${escapeHtml(claim.claimantContact)}</p>
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-700">Sagot sa Verification Question:</p>
+                            <p class="text-indigo-700 font-semibold bg-indigo-50 p-1.5 rounded border border-indigo-100 mt-1">
+                                "${escapeHtml(claim.claimantAnswer)}"
+                            </p>
+                            ${claim.claimantProof ? `<p class="mt-1"><span class="text-slate-500">Extra Proof:</span> ${escapeHtml(claim.claimantProof)}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- ADMIN DECISION BUTTONS -->
+                    <div class="flex gap-3 justify-end">
+                        <button onclick="rejectClaim(${claim.claimId})" class="px-4 py-2 bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold rounded-lg transition">
+                            <i class="fa-solid fa-xmark mr-1"></i> Reject Claim
+                        </button>
+                        <button onclick="approveClaim(${claim.claimId}, ${claim.itemId})" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition shadow-sm">
+                            <i class="fa-solid fa-check mr-1"></i> Approve & Remove Item
+                        </button>
+                    </div>
+                `;
+                claimsList.appendChild(claimCard);
+            });
         }
 
+        // ADMIN ACTION 1: APPROVE CLAIM
+        function approveClaim(claimId, itemId) {
+            if (confirm("Sigurado ka bang itong tao na ito ang tunay na may-ari? Kapag in-approve mo ito, tatanggalin na ang item sa pampublikong listahan.")) {
+                // Delete item
+                items = items.filter(i => i.id !== itemId);
+                // Delete claim
+                claims = claims.filter(c => c.claimId !== claimId);
+                saveAndRender();
+                alert("Nai-approve na ang claim! Ang item ay opisyal nang naitala bilang naisauli at tinanggal sa portal.");
+            }
+        }
+
+        // ADMIN ACTION 2: REJECT CLAIM
+        function rejectClaim(claimId) {
+            if (confirm("Sigurado ka bang ire-reject ang claim request na ito?")) {
+                claims = claims.filter(c => c.claimId !== claimId);
+                saveAndRender();
+                alert("Nai-reject ang claim request.");
+            }
+        }
+
+        // Basic Helper Functions
+        function setTypeFilter(t) { currentTypeFilter = t; filterItems(); }
+        function setRoleFilter(r) { currentRoleFilter = r; filterItems(); }
         function filterItems() {
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-            const categoryQuery = document.getElementById('categorySelect').value;
-
-            const filtered = items.filter(item => {
-                const matchesType = currentTypeFilter === 'ALL' || item.type === currentTypeFilter;
-                const matchesRole = currentRoleFilter === 'ALL' || item.userRole === currentRoleFilter;
-                const matchesCategory = categoryQuery === 'ALL' || item.category === categoryQuery;
-                const matchesSearch = item.title.toLowerCase().includes(searchQuery) || 
-                                      item.description.toLowerCase().includes(searchQuery) || 
-                                      item.location.toLowerCase().includes(searchQuery);
-
-                return matchesType && matchesRole && matchesCategory && matchesSearch;
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const c = document.getElementById('categorySelect').value;
+            const filtered = items.filter(i => {
+                return (currentTypeFilter === 'ALL' || i.type === currentTypeFilter) &&
+                       (currentRoleFilter === 'ALL' || i.userRole === currentRoleFilter) &&
+                       (c === 'ALL' || i.category === c) &&
+                       (i.title.toLowerCase().includes(q) || i.description.toLowerCase().includes(q));
             });
-
             renderItems(filtered);
         }
 
-        // Handle Report Form Submit
         function handleFormSubmit(e) {
             e.preventDefault();
-            
             const itemType = document.querySelector('input[name="itemType"]:checked').value;
-            const newItem = {
+            items.unshift({
                 id: Date.now(),
                 userRole: document.querySelector('input[name="userRole"]:checked').value,
                 title: document.getElementById('title').value,
@@ -507,129 +559,38 @@
                 image: currentImageData,
                 secretQuestion: itemType === 'FOUND' ? document.getElementById('secretQuestion').value : null,
                 turnoverLocation: itemType === 'FOUND' ? document.getElementById('turnoverLocation').value : null
-            };
-
-            items.unshift(newItem);
-            
-            // Reset form
+            });
             document.getElementById('reportForm').reset();
-            document.getElementById('imagePreview').classList.add('hidden');
-            document.getElementById('uploadPrompt').classList.remove('hidden');
-            document.getElementById('secretContainer').classList.add('hidden');
-            document.getElementById('turnoverContainer').classList.add('hidden');
             currentImageData = null;
-            
             saveAndRender();
             switchTab('browse');
         }
 
-        // Modal Functionality
         function openModal(id) {
             const item = items.find(i => i.id === id);
             if (!item) return;
-
-            const modalContent = document.getElementById('modalContent');
-            const badgeColor = item.type === 'LOST' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700';
-            const roleBadge = item.userRole === 'TEACHER'
-                ? `<span class="px-2 py-0.5 text-xs font-bold rounded bg-amber-100 text-amber-800"><i class="fa-solid fa-chalkboard-user mr-1"></i>Teacher / Staff Record</span>`
-                : `<span class="px-2 py-0.5 text-xs font-bold rounded bg-sky-100 text-sky-800"><i class="fa-solid fa-user-graduate mr-1"></i>Student Record</span>`;
-
-            const imageDisplay = item.image 
-                ? `<img src="${item.image}" class="w-full h-52 object-cover rounded-lg mb-4" alt="Item preview">` 
-                : '';
-
-            const turnoverInfo = (item.type === 'FOUND' && item.turnoverLocation)
-                ? `<div class="bg-amber-50 p-3 rounded-lg border border-amber-200 text-xs text-amber-900 mb-3"><i class="fa-solid fa-building-shield text-amber-600 mr-1.5"></i><strong>Safe Custody Location:</strong> ${escapeHtml(item.turnoverLocation)}</div>`
-                : '';
-
-            modalContent.innerHTML = `
-                ${imageDisplay}
-                <div class="mb-3 flex justify-between items-center flex-wrap gap-2">
-                    <span class="px-2.5 py-1 text-xs font-bold rounded-full ${badgeColor}">${item.type}</span>
-                    ${roleBadge}
-                </div>
-                <h3 class="text-xl font-bold text-slate-800 mb-1">${escapeHtml(item.title)}</h3>
-                <p class="text-xs text-indigo-600 font-semibold mb-3">${escapeHtml(item.category)}</p>
+            document.getElementById('modalContent').innerHTML = `
+                <h3 class="text-xl font-bold text-slate-800 mb-2">${escapeHtml(item.title)}</h3>
                 <p class="text-slate-600 text-sm mb-4">${escapeHtml(item.description)}</p>
-                
-                ${turnoverInfo}
-
-                <div class="bg-slate-50 p-4 rounded-lg space-y-2 text-sm border border-slate-100 mb-4">
-                    <div class="flex items-center text-slate-600"><i class="fa-solid fa-location-dot w-6 text-indigo-500"></i><strong>Location:</strong>&nbsp;${escapeHtml(item.location)}</div>
-                    <div class="flex items-center text-slate-600"><i class="fa-solid fa-calendar w-6 text-indigo-500"></i><strong>Date:</strong>&nbsp;${item.date}</div>
-                </div>
-
-                <div class="border-t pt-3 mb-4">
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Contact Information</p>
-                    <p class="text-indigo-600 font-bold text-md select-all">${escapeHtml(item.contact)}</p>
-                </div>
-
-                <div class="flex gap-2">
-                    <button onclick="openClaimModal(${item.id})" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-shield-check"></i> Claim / Verify Ownership
-                    </button>
-                </div>
+                <button onclick="openClaimModal(${item.id})" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg">
+                    Submit Claim Verification
+                </button>
             `;
-
             document.getElementById('itemModal').classList.remove('hidden');
         }
 
-        // Open Verification Claim Modal
         function openClaimModal(id) {
             const item = items.find(i => i.id === id);
             if (!item) return;
-
             closeModal();
             document.getElementById('claimItemId').value = item.id;
-            
-            const questionBox = document.getElementById('modalQuestionBox');
-            const questionLabel = document.getElementById('modalQuestionLabel');
-
-            if (item.type === 'FOUND' && item.secretQuestion) {
-                questionLabel.innerHTML = `<i class="fa-solid fa-circle-question mr-1"></i> ${escapeHtml(item.secretQuestion)}`;
-                questionBox.classList.remove('hidden');
-            } else {
-                questionLabel.innerHTML = `<i class="fa-solid fa-circle-question mr-1"></i> Verification Question: Describe a specific detail or content inside:`;
-                questionBox.classList.remove('hidden');
-            }
-
+            document.getElementById('modalQuestionLabel').innerText = item.secretQuestion || "Verification Question: Describe a specific detail of the item:";
             document.getElementById('claimModal').classList.remove('hidden');
         }
 
-        // Submit Claim Verification
-        function handleClaimSubmit(e) {
-            e.preventDefault();
-            const itemId = parseInt(document.getElementById('claimItemId').value);
-            const name = document.getElementById('claimantName').value;
-            const idNum = document.getElementById('claimantId').value;
-
-            alert(`Thank you, ${name} (${idNum})!\n\nYour claim verification request has been submitted. The finder/admin will review your response. Once verified, this listing will be marked as resolved.`);
-            
-            // Auto-resolve item after successful claim submission
-            deleteItem(itemId);
-            closeClaimModal();
-            document.getElementById('claimForm').reset();
-        }
-
-        function deleteItem(id) {
-            items = items.filter(item => item.id !== id);
-            saveAndRender();
-        }
-
-        function closeModal() {
-            document.getElementById('itemModal').classList.add('hidden');
-        }
-
-        function closeClaimModal() {
-            document.getElementById('claimModal').classList.add('hidden');
-        }
-
-        function escapeHtml(str) {
-            if(!str) return '';
-            return str.replace(/[&<>"']/g, function(m) {
-                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-            });
-        }
+        function closeModal() { document.getElementById('itemModal').classList.add('hidden'); }
+        function closeClaimModal() { document.getElementById('claimModal').classList.add('hidden'); }
+        function escapeHtml(s) { return s ? s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])) : ''; }
     </script>
 </body>
 </html>
