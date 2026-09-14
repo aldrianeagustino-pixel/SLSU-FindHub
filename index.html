@@ -203,14 +203,14 @@
         </section>
 
 
-        <!-- ================= ADMIN VERIFICATION PANEL (4) ================= -->
+        <!-- ================= ADMIN VERIFICATION PANEL ================= -->
         <section id="adminTab" class="hidden max-w-4xl mx-auto">
             <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <i class="fa-solid fa-shield-halved text-2xl text-amber-600"></i>
                     <div>
                         <h3 class="font-bold text-slate-800">Admin Claim Approval Panel</h3>
-                        <p class="text-xs text-slate-600">Suriin ang mga sumasagot na claim bago ito permanenteng ma-approve at ma-remove sa portal.</p>
+                        <p class="text-xs text-slate-600">Review submitted claim proof before permanently approving and removing items from the portal.</p>
                     </div>
                 </div>
             </div>
@@ -221,7 +221,7 @@
 
             <div id="noClaims" class="hidden text-center py-12 bg-white rounded-xl border border-slate-200">
                 <i class="fa-solid fa-circle-check text-4xl text-emerald-400 mb-2"></i>
-                <p class="text-slate-500 text-sm font-medium">Walang pending claim verification requests sa ngayon.</p>
+                <p class="text-slate-500 text-sm font-medium">No pending claim verification requests at the moment.</p>
             </div>
         </section>
 
@@ -243,7 +243,7 @@
             <div class="mb-4">
                 <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-indigo-100 text-indigo-700"><i class="fa-solid fa-shield-halved mr-1"></i>Claim Verification</span>
                 <h3 class="text-xl font-bold text-slate-800 mt-2">Submit Proof to Admin</h3>
-                <p class="text-xs text-slate-500 mt-1">Ang iyong mga sagot ay isusumite sa Portal Admin para i-review at i-approve.</p>
+                <p class="text-xs text-slate-500 mt-1">Your responses will be submitted to the Portal Admin for review and approval.</p>
             </div>
 
             <form id="claimForm" onsubmit="handleClaimSubmit(event)" class="space-y-3">
@@ -251,7 +251,7 @@
                 
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Your Full Name *</label>
-                    <input type="text" id="claimantName" required placeholder="Juan Dela Cruz" class="w-full p-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="text" id="claimantName" required placeholder="John Doe" class="w-full p-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
 
                 <div>
@@ -266,12 +266,12 @@
 
                 <div id="modalQuestionBox" class="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
                     <label id="modalQuestionLabel" class="block text-xs font-bold text-indigo-900 mb-1">Verification Question:</label>
-                    <input type="text" id="claimantAnswer" required placeholder="Ibigay ang iyong sagot..." class="w-full p-2 text-sm border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="text" id="claimantAnswer" required placeholder="Provide your answer..." class="w-full p-2 text-sm border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Karagdagang Patunay / Details</label>
-                    <textarea id="claimantProof" rows="2" placeholder="Serial number, resibo, o iba pang katibayan..." class="w-full p-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Additional Proof / Details</label>
+                    <textarea id="claimantProof" rows="2" placeholder="Serial numbers, receipts, or distinct markings..." class="w-full p-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
                 </div>
 
                 <div class="pt-2">
@@ -285,8 +285,8 @@
 
     <!-- JavaScript Application Logic -->
     <script>
-        // Password Admin Access (Pinakasimpleng Security)
-        const ADMIN_PIN = "1234"; // Pwedeng palitan ang Password dito
+        // Password Admin Access
+        const ADMIN_PIN = "ian2004";
 
         const initialItems = [
             {
@@ -297,10 +297,10 @@
                 category: "Electronics",
                 location: "Central Library, 3rd Floor",
                 date: "2026-09-08",
-                description: "May sticker sa likod. Naiiwan sa black sleeve.",
+                description: "Has a sticker on the back shell. Left inside a black laptop sleeve.",
                 contact: "alex.m@univ.edu",
                 image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80",
-                secretQuestion: "Ano ang sticker design sa likod ng laptop?",
+                secretQuestion: "What design is on the back sticker?",
                 turnoverLocation: null
             }
         ];
@@ -340,9 +340,9 @@
             const adminTab = document.getElementById('adminTab');
 
             if (tab === 'admin') {
-                const pass = prompt("Maglagay ng Admin PIN/Password para buksan ang Admin Review Panel:");
+                const pass = prompt("Enter Admin PIN/Password to access Admin Review Panel:");
                 if (pass !== ADMIN_PIN) {
-                    alert("Maling Password! Ikaw lang na may-hawak ng website ang pwedeng pumasok dito.");
+                    alert("Incorrect Password! Only the website administrator can access this panel.");
                     return;
                 }
             }
@@ -446,7 +446,7 @@
             claims.push(newClaim);
             saveAndRender();
 
-            alert("Naisumite na ang iyong claim request! Susuriin ito ng Admin. Ikaw ay pakikipag-ugnayan kapag na-verify na ang iyong katibayan.");
+            alert("Your claim request has been submitted! It will be reviewed by the Admin. You will be contacted once your proof is verified.");
             closeClaimModal();
             document.getElementById('claimForm').reset();
         }
@@ -464,8 +464,6 @@
             noClaims.classList.add('hidden');
 
             claims.forEach(claim => {
-                const item = items.find(i => i.id === claim.itemId);
-
                 const claimCard = document.createElement('div');
                 claimCard.className = "bg-white p-5 rounded-xl border border-amber-200 shadow-sm relative";
                 claimCard.innerHTML = `
@@ -485,7 +483,7 @@
                             <p><span class="text-slate-500">Contact:</span> ${escapeHtml(claim.claimantContact)}</p>
                         </div>
                         <div>
-                            <p class="font-bold text-slate-700">Sagot sa Verification Question:</p>
+                            <p class="font-bold text-slate-700">Answer to Verification Question:</p>
                             <p class="text-indigo-700 font-semibold bg-indigo-50 p-1.5 rounded border border-indigo-100 mt-1">
                                 "${escapeHtml(claim.claimantAnswer)}"
                             </p>
@@ -509,22 +507,20 @@
 
         // ADMIN ACTION 1: APPROVE CLAIM
         function approveClaim(claimId, itemId) {
-            if (confirm("Sigurado ka bang itong tao na ito ang tunay na may-ari? Kapag in-approve mo ito, tatanggalin na ang item sa pampublikong listahan.")) {
-                // Delete item
+            if (confirm("Are you sure this claimant is the rightful owner? Approving will permanently remove this item from the public feed.")) {
                 items = items.filter(i => i.id !== itemId);
-                // Delete claim
                 claims = claims.filter(c => c.claimId !== claimId);
                 saveAndRender();
-                alert("Nai-approve na ang claim! Ang item ay opisyal nang naitala bilang naisauli at tinanggal sa portal.");
+                alert("Claim approved successfully! The item has been marked as returned and removed from the portal.");
             }
         }
 
         // ADMIN ACTION 2: REJECT CLAIM
         function rejectClaim(claimId) {
-            if (confirm("Sigurado ka bang ire-reject ang claim request na ito?")) {
+            if (confirm("Are you sure you want to reject this claim request?")) {
                 claims = claims.filter(c => c.claimId !== claimId);
                 saveAndRender();
-                alert("Nai-reject ang claim request.");
+                alert("Claim request rejected.");
             }
         }
 
