@@ -1,2 +1,2 @@
-# attendance-checker
-attendance checker
+# SLSU FindHub
+SLSU FindHub
