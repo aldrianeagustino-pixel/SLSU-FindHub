@@ -8,11 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase SDKs (Compat version for simple JS integration) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
     <style>
         .active-tab {
             border-bottom: 2px solid #4f46e5;
@@ -43,6 +38,12 @@
     <!-- Main Container -->
     <main class="max-w-6xl mx-auto px-4 mt-6">
         
+        <!-- Status Indicator Banner -->
+        <div id="statusBanner" class="mb-4 p-2.5 rounded-lg text-xs font-semibold flex justify-between items-center bg-sky-50 text-sky-700 border border-sky-200">
+            <span><i class="fa-solid fa-wifi mr-1.5"></i> Live Sync Active (Cloud Storage Connected)</span>
+            <button onclick="fetchOnlineData()" class="underline hover:opacity-80"><i class="fa-solid fa-rotate-right mr-1"></i> Refresh Data</button>
+        </div>
+
         <!-- Navigation Tabs -->
         <div class="flex border-b border-slate-200 mb-6 bg-white rounded-t-lg shadow-sm px-4">
             <button onclick="switchTab('browse')" id="tabBrowse" class="active-tab py-3 px-6 text-sm flex items-center gap-2">
@@ -196,7 +197,7 @@
 
                     <!-- Submit Button -->
                     <button type="submit" id="submitBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition shadow">
-                        <i class="fa-solid fa-paper-plane mr-1"></i> Post Live Report
+                        <i class="fa-solid fa-paper-plane mr-1"></i> Post Live Report Online
                     </button>
                 </form>
             </div>
@@ -251,70 +252,77 @@
                     <label id="modalQuestionLabel" class="block text-xs font-semibold text-indigo-700 mb-1"></label>
                     <textarea id="claimAnswer" rows="2" placeholder="Provide proof or answer the secret question..." class="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-lg outline-none"></textarea>
                 </div>
-                <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition">
+                <button type="submit" id="claimSubmitBtn" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition">
                     Submit Ownership Claim
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- Javascript & Firebase Logic -->
+    <!-- Application Script -->
     <script>
         // ==========================================
-        // 1. FIREBASE CONFIGURATION & INITIALIZATION
+        // ONLINE GLOBAL CLOUD DATABASE CONFIGURATION
         // ==========================================
-        // REPLACED: Palitan ang mga values sa ibaba mula sa iyong Firebase Project Settings!
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+        const BIN_ID = '664f3317e41b4d34e40889ef';
+        const API_KEY = '$2a$10$wT8v59kC/gZ7rVlRsmr6bO5UaGq/V2XhI7.8r3s5C/WzZpYgHk0eW';
+        const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        // Application State
         let items = [];
         let claims = [];
         let isAdmin = false;
         let currentTypeFilter = 'ALL';
         let currentRoleFilter = 'ALL';
 
-        // Set default date picker to today
         document.getElementById('date').valueAsDate = new Date();
 
-        // ==========================================
-        // 2. REALTIME DATABASE LISTENERS (FIREBASE)
-        // ==========================================
-        
-        // Listen to "items" collection in Real-time
-        db.collection("items").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
-            items = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            filterItems();
-        }, (error) => {
-            console.error("Firebase Read Error: ", error);
-        });
+        // 1. Fetch Online Data (Reads data from Cloud Storage)
+        async function fetchOnlineData() {
+            try {
+                const response = await fetch(API_URL + '/latest', {
+                    headers: { 'X-Master-Key': API_KEY }
+                });
+                const result = await response.json();
+                if (result.record) {
+                    items = result.record.items || [];
+                    claims = result.record.claims || [];
+                    filterItems();
+                    renderClaims();
+                    updateClaimsBadge();
+                }
+            } catch (err) {
+                console.error("Cloud Fetch Error:", err);
+            }
+        }
 
-        // Listen to "claims" collection in Real-time
-        db.collection("claims").onSnapshot((snapshot) => {
-            claims = snapshot.docs.map(doc => ({
-                claimId: doc.id,
-                ...doc.data()
-            }));
-            renderClaims();
-            updateClaimsBadge();
-        });
+        // 2. Push Online Data (Saves data to Cloud Storage for everyone)
+        async function saveOnlineData() {
+            try {
+                await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY
+                    },
+                    body: JSON.stringify({ items: items, claims: claims })
+                });
+                fetchOnlineData();
+                return true;
+            } catch (err) {
+                console.error("Cloud Save Error:", err);
+                alert("Failed to sync with live cloud storage. Please check internet connection.");
+                return false;
+            }
+        }
 
-        // ==========================================
-        // 3. TAB & VIEW CONTROL
-        // ==========================================
+        // Initialize application on load
+        window.onload = () => {
+            fetchOnlineData();
+            // Auto refresh items every 15 seconds
+            setInterval(fetchOnlineData, 15000);
+        };
+
+        // Navigation Controls
         function switchTab(tab) {
             document.getElementById('browseSection').classList.add('hidden');
             document.getElementById('reportSection').classList.add('hidden');
@@ -362,21 +370,18 @@
             }
         }
 
-        // ==========================================
-        // 4. DATABASE ACTIONS (POST / CLAIM / DELETE)
-        // ==========================================
-
-        // Submit Report to Firebase
-        function handleFormSubmit(e) {
+        // Submit Report
+        async function handleFormSubmit(e) {
             e.preventDefault();
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
-            submitBtn.innerText = "Posting to Database...";
+            submitBtn.innerText = "Syncing with Cloud Database...";
 
             const userRole = document.querySelector('input[name="userRole"]:checked').value;
             const itemType = document.querySelector('input[name="itemType"]:checked').value;
-            
+
             const newItem = {
+                id: 'item_' + Date.now(),
                 userRole: userRole,
                 title: document.getElementById('title').value,
                 type: itemType,
@@ -386,28 +391,31 @@
                 description: document.getElementById('description').value,
                 contact: document.getElementById('contact').value,
                 turnoverLocation: itemType === 'FOUND' ? document.getElementById('turnoverLocation').value : null,
-                secretQuestion: itemType === 'FOUND' ? document.getElementById('secretQuestion').value : null,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                secretQuestion: itemType === 'FOUND' ? document.getElementById('secretQuestion').value : null
             };
 
-            db.collection("items").add(newItem).then(() => {
-                alert("Report successfully posted live!");
+            items.unshift(newItem);
+            const success = await saveOnlineData();
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane mr-1"></i> Post Live Report Online`;
+
+            if (success) {
+                alert("Report successfully posted and visible to all online users!");
                 document.getElementById('reportForm').reset();
                 document.getElementById('date').valueAsDate = new Date();
                 toggleFoundFields();
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane mr-1"></i> Post Live Report`;
                 switchTab('browse');
-            }).catch((err) => {
-                alert("Error saving report: " + err.message);
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane mr-1"></i> Post Live Report`;
-            });
+            }
         }
 
-        // Submit Ownership Claim to Firebase
-        function submitClaim(e) {
+        // Submit Ownership Claim
+        async function submitClaim(e) {
             e.preventDefault();
+            const claimBtn = document.getElementById('claimSubmitBtn');
+            claimBtn.disabled = true;
+            claimBtn.innerText = "Submitting Claim...";
+
             const itemId = document.getElementById('claimItemId').value;
             const claimantName = document.getElementById('claimantName').value;
             const claimantContact = document.getElementById('claimantContact').value;
@@ -416,6 +424,7 @@
             const item = items.find(i => i.id === itemId);
 
             const newClaim = {
+                claimId: 'claim_' + Date.now(),
                 itemId: itemId,
                 itemTitle: item ? item.title : 'Unknown Item',
                 claimantName: claimantName,
@@ -424,31 +433,34 @@
                 submittedAt: new Date().toLocaleDateString()
             };
 
-            db.collection("claims").add(newClaim).then(() => {
-                alert("Ownership claim submitted for review!");
-                closeClaimModal();
-            }).catch(err => alert("Error submitting claim: " + err.message));
+            claims.unshift(newClaim);
+            await saveOnlineData();
+
+            claimBtn.disabled = false;
+            claimBtn.innerText = "Submit Ownership Claim";
+            closeClaimModal();
+            alert("Ownership claim submitted for review!");
         }
 
-        // Admin Action: Approve Claim & Delete Item
-        function approveClaim(claimId, itemId) {
+        // Admin Action: Approve Claim
+        async function approveClaim(claimId, itemId) {
             if (confirm("Are you sure this claimant is the owner? Approving will remove this item from the live portal.")) {
-                db.collection("items").doc(itemId).delete();
-                db.collection("claims").doc(claimId).delete();
-                alert("Claim Approved! The item record has been cleared.");
+                items = items.filter(i => i.id !== itemId);
+                claims = claims.filter(c => c.claimId !== claimId);
+                await saveOnlineData();
+                alert("Claim Approved! Item removed from public listing.");
             }
         }
 
         // Admin Action: Reject Claim
-        function rejectClaim(claimId) {
+        async function rejectClaim(claimId) {
             if (confirm("Reject this claim request?")) {
-                db.collection("claims").doc(claimId).delete();
+                claims = claims.filter(c => c.claimId !== claimId);
+                await saveOnlineData();
             }
         }
 
-        // ==========================================
-        // 5. RENDERING & FILTERING UI
-        // ==========================================
+        // Filtering & Rendering
         function filterItems() {
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             const categoryQuery = document.getElementById('categorySelect').value;
