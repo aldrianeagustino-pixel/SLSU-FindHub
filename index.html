@@ -6,104 +6,205 @@
     <title>SLSU Lost & Found Portal</title>
     <style>
         :root {
-            --primary: #0066cc;
+            --primary: #003366;
+            --primary-light: #004b99;
+            --accent: #ff9900;
             --bg: #f4f6f9;
             --card-bg: #ffffff;
-            --text: #333333;
+            --text: #2c3e50;
+            --border: #e2e8f0;
         }
-        body {
-            font-family: Arial, sans-serif;
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg);
             color: var(--text);
+            line-height: 1.6;
         }
+
         header {
-            background-color: var(--primary);
+            background: linear-gradient(135deg, #002244, #004b99);
             color: white;
-            padding: 1rem;
+            padding: 1.5rem 1rem;
             text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
+
+        header h1 {
+            font-size: 1.8rem;
+            letter-spacing: 0.5px;
+        }
+
         nav {
             display: flex;
             justify-content: center;
-            background: #004b99;
+            background: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+
         nav button {
             background: none;
             border: none;
-            color: white;
-            padding: 1rem;
+            color: #d1d5db;
+            padding: 1rem 1.5rem;
             cursor: pointer;
             font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
         }
-        nav button:hover, nav button.active {
-            background: #003366;
+
+        nav button:hover {
+            color: white;
+            background: rgba(255,255,255,0.05);
         }
+
+        nav button.active {
+            color: white;
+            border-bottom: 3px solid var(--accent);
+            background: rgba(255,255,255,0.1);
+        }
+
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 2rem auto;
             padding: 0 1rem;
         }
+
         .tab-content {
             display: none;
         }
+
         .tab-content.active {
             display: block;
         }
+
         .card {
             background: var(--card-bg);
             padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .card-img {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .form-group {
             margin-bottom: 1rem;
         }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
         label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            color: #34495e;
         }
-        input, select, textarea {
+
+        input[type="text"], input[type="date"], select, textarea, input[type="password"], input[type="file"] {
             width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background-color: #f8fafc;
         }
-        button.btn-submit {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            background-color: #fff;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .radio-group label {
+            font-weight: normal;
             cursor: pointer;
         }
+
+        button.btn-submit {
+            background: var(--primary-light);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        button.btn-submit:hover {
+            background: var(--primary);
+        }
+
         .badge {
             display: inline-block;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
             font-size: 0.8rem;
             color: white;
             font-weight: bold;
+            text-transform: uppercase;
         }
+
         .badge-lost { background: #e74c3c; }
         .badge-found { background: #2ecc71; }
+
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             justify-content: center; align-items: center;
+            z-index: 1000;
         }
+
         .modal-content {
             background: white;
             padding: 2rem;
-            border-radius: 8px;
+            border-radius: 12px;
             width: 90%;
-            max-width: 500px;
+            max-width: 450px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .btn-approve {
+            background: #2ecc71; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: bold;
+        }
+        .btn-reject {
+            background: #e74c3c; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: 8px;
         }
     </style>
 </head>
@@ -123,24 +224,28 @@
         <!-- BROWSE TAB -->
         <div id="browse" class="tab-content active">
             <h2>Reported Items</h2>
-            <div id="itemsContainer"></div>
+            <div id="itemsContainer" style="margin-top: 1rem;"></div>
         </div>
 
         <!-- REPORT TAB -->
         <div id="report" class="tab-content">
             <div class="card">
-                <h2>Submit a Report</h2>
-                <form id="reportForm" onsubmit="handleFormSubmit(event)">
+                <h2 style="margin-bottom: 1rem;">Submit a Report</h2>
+                <form id="reportForm" onsubmit="handleFormSubmit(event)" enctype="multipart/form-data">
                     <div class="form-group">
                         <label>I am a:</label>
-                        <input type="radio" name="userRole" value="STUDENT" checked> Student
-                        <input type="radio" name="userRole" value="TEACHER"> Teacher
+                        <div class="radio-group">
+                            <label><input type="radio" name="userRole" value="STUDENT" checked> Student</label>
+                            <label><input type="radio" name="userRole" value="TEACHER"> Teacher</label>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label>Report Type:</label>
-                        <input type="radio" name="itemType" value="LOST" checked onclick="toggleFoundFields()"> Lost Item
-                        <input type="radio" name="itemType" value="FOUND" onclick="toggleFoundFields()"> Found Item
+                        <div class="radio-group">
+                            <label><input type="radio" name="itemType" value="LOST" checked onclick="toggleFoundFields()"> Lost Item</label>
+                            <label><input type="radio" name="itemType" value="FOUND" onclick="toggleFoundFields()"> Found Item</label>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -174,19 +279,24 @@
                     </div>
 
                     <div class="form-group">
+                        <label>Attach Photo (Optional)</label>
+                        <input type="file" id="image" accept="image/*">
+                    </div>
+
+                    <div class="form-group">
                         <label>Contact Information</label>
                         <input type="text" id="contact" required placeholder="Email or Phone Number">
                     </div>
 
                     <div id="foundFields" style="display: none;">
                         <div class="form-group">
-                            <label>Turnover Location (Where the item is currently kept)</label>
+                            <label>Turnover Location (Where item is deposited)</label>
                             <input type="text" id="turnoverLocation" placeholder="e.g., Main Security Office">
                         </div>
 
                         <div class="form-group">
                             <label>Secret Question for Ownership Verification</label>
-                            <input type="text" id="secretQuestion" placeholder="e.g., What stickers are attached on the back?">
+                            <input type="text" id="secretQuestion" placeholder="e.g., What color is the keychain attached?">
                         </div>
                     </div>
 
@@ -197,8 +307,23 @@
 
         <!-- CLAIMS TAB -->
         <div id="claims" class="tab-content">
-            <h2>Pending Claims</h2>
-            <div id="claimsContainer"></div>
+            <h2>Pending Claims (Admin Access Only)</h2>
+            <div id="claimsContainer" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+
+    <!-- ADMIN AUTH MODAL -->
+    <div id="adminAuthModal" class="modal">
+        <div class="modal-content">
+            <h3>Admin Password Required</h3>
+            <p style="margin-bottom: 1rem; color: #666; font-size: 0.9rem;">Please enter the authority password to access the claims admin panel.</p>
+            <form onsubmit="verifyAdminPassword(event)">
+                <div class="form-group">
+                    <input type="password" id="adminPasswordInput" placeholder="Enter Admin Password" required>
+                </div>
+                <button type="submit" class="btn-submit" style="width: 100%;">Login as Admin</button>
+                <button type="button" onclick="cancelAdminAuth()" style="width: 100%; margin-top: 8px; background: #94a3b8; color: white; border: none; padding: 0.75rem; border-radius: 6px; cursor: pointer;">Cancel</button>
+            </form>
         </div>
     </div>
 
@@ -209,7 +334,7 @@
             <form id="claimForm" onsubmit="submitClaim(event)">
                 <input type="hidden" id="claimItemId">
                 
-                <p id="modalSecretQuestion" style="font-weight: bold; color: #d35400;"></p>
+                <p id="modalSecretQuestion" style="font-weight: bold; color: #d35400; margin-bottom: 1rem;"></p>
 
                 <div class="form-group">
                     <label>Your Full Name</label>
@@ -222,26 +347,25 @@
                 </div>
 
                 <div class="form-group" id="answerGroup">
-                    <label>Answer to Secret Question / Verification Details</label>
-                    <textarea id="claimAnswer" rows="2"></textarea>
+                    <label>Answer / Verification Proof</label>
+                    <textarea id="claimAnswer" rows="2" placeholder="Describe specific details to prove ownership..."></textarea>
                 </div>
 
                 <button type="submit" class="btn-submit">Submit Claim</button>
-                <button type="button" onclick="closeClaimModal()" style="background:#888; color:white; border:none; padding:0.75rem 1.5rem; border-radius:4px; margin-left:8px;">Cancel</button>
+                <button type="button" onclick="closeClaimModal()" style="background:#94a3b8; color:white; border:none; padding:0.8rem 1.5rem; border-radius:6px; margin-left:8px; cursor:pointer;">Cancel</button>
             </form>
         </div>
     </div>
 
     <script>
-        // Kusa nitong kukunin ang live URL mula sa Render Server (e.g. https://your-app.onrender.com)
         const API_BASE = window.location.origin;
 
         let items = [];
         let claims = [];
+        let isAdminAuthenticated = false;
 
         document.getElementById('date').valueAsDate = new Date();
 
-        // Automatic na nag-fe-fetch sa Render backend server
         async function loadSystemData() {
             try {
                 const [itemsRes, claimsRes] = await Promise.all([
@@ -262,50 +386,59 @@
         function renderItems() {
             const container = document.getElementById('itemsContainer');
             if (!items || items.length === 0) {
-                container.innerHTML = '<p>No items reported yet.</p>';
+                container.innerHTML = '<p style="color: #666;">No items reported yet.</p>';
                 return;
             }
 
             container.innerHTML = items.map(item => `
                 <div class="card">
-                    <span class="badge ${item.type === 'LOST' ? 'badge-lost' : 'badge-found'}">${escapeHtml(item.type)}</span>
-                    <small style="margin-left: 8px; color: #666;">[${escapeHtml(item.userRole)}]</small>
-                    <h3>${escapeHtml(item.title)}</h3>
+                    <div class="card-header">
+                        <div>
+                            <span class="badge ${item.type === 'LOST' ? 'badge-lost' : 'badge-found'}">${escapeHtml(item.type)}</span>
+                            <small style="margin-left: 8px; color: #64748b; font-weight: bold;">[${escapeHtml(item.userRole)}]</small>
+                        </div>
+                        <small style="color: #64748b;">${escapeHtml(item.date)}</small>
+                    </div>
+                    ${item.imageUrl ? `<img src="${item.imageUrl}" class="card-img" alt="Item Image">` : ''}
+                    <h3 style="margin-bottom: 0.5rem; color: #1e293b;">${escapeHtml(item.title)}</h3>
                     <p><strong>Category:</strong> ${escapeHtml(item.category)}</p>
                     <p><strong>Location:</strong> ${escapeHtml(item.location)}</p>
-                    <p><strong>Date:</strong> ${escapeHtml(item.date)}</p>
                     <p><strong>Description:</strong> ${escapeHtml(item.description)}</p>
                     ${item.turnoverLocation ? `<p><strong>Turnover Location:</strong> ${escapeHtml(item.turnoverLocation)}</p>` : ''}
-                    <p><strong>Contact:</strong> ${escapeHtml(item.contact)}</p>
-                    ${item.type === 'FOUND' ? `<button onclick="openClaimModal('${item.id}')" class="btn-submit" style="margin-top:10px;">Claim This Item</button>` : ''}
+                    <p style="margin-top: 0.5rem;"><strong>Contact:</strong> ${escapeHtml(item.contact)}</p>
+                    ${item.type === 'FOUND' ? `<button onclick="openClaimModal('${item.id}')" class="btn-submit" style="margin-top:1rem; width:100%;">Claim This Item</button>` : ''}
                 </div>
             `).join('');
         }
 
         async function handleFormSubmit(e) {
             e.preventDefault();
-            const userRole = document.querySelector('input[name="userRole"]:checked').value;
-            const itemType = document.querySelector('input[name="itemType"]:checked').value;
+            const formData = new FormData();
+            
+            formData.append('id', 'item_' + Date.now());
+            formData.append('userRole', document.querySelector('input[name="userRole"]:checked').value);
+            formData.append('type', document.querySelector('input[name="itemType"]:checked').value);
+            formData.append('title', document.getElementById('title').value);
+            formData.append('category', document.getElementById('category').value);
+            formData.append('location', document.getElementById('location').value);
+            formData.append('date', document.getElementById('date').value);
+            formData.append('description', document.getElementById('description').value);
+            formData.append('contact', document.getElementById('contact').value);
 
-            const newItem = {
-                id: 'item_' + Date.now(),
-                userRole: userRole,
-                title: document.getElementById('title').value,
-                type: itemType,
-                category: document.getElementById('category').value,
-                location: document.getElementById('location').value,
-                date: document.getElementById('date').value,
-                description: document.getElementById('description').value,
-                contact: document.getElementById('contact').value,
-                turnoverLocation: itemType === 'FOUND' ? document.getElementById('turnoverLocation').value : null,
-                secretQuestion: itemType === 'FOUND' ? document.getElementById('secretQuestion').value : null
-            };
+            if (document.querySelector('input[name="itemType"]:checked').value === 'FOUND') {
+                formData.append('turnoverLocation', document.getElementById('turnoverLocation').value);
+                formData.append('secretQuestion', document.getElementById('secretQuestion').value);
+            }
+
+            const imageFile = document.getElementById('image').files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
 
             try {
                 const res = await fetch(`${API_BASE}/api/items`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newItem)
+                    body: formData
                 });
 
                 if (res.ok) {
@@ -319,7 +452,7 @@
                     alert("Failed to save report.");
                 }
             } catch (err) {
-                alert("Cannot connect to server. Check your connection.");
+                alert("Cannot connect to server.");
                 console.error(err);
             }
         }
@@ -332,7 +465,7 @@
             const secretQ = document.getElementById('modalSecretQuestion');
             
             if (item.secretQuestion) {
-                secretQ.innerText = "Question: " + item.secretQuestion;
+                secretQ.innerText = "Secret Question: " + item.secretQuestion;
             } else {
                 secretQ.innerText = "";
             }
@@ -378,32 +511,56 @@
             document.getElementById('claimsBadge').innerText = claims.length ? `(${claims.length})` : '';
 
             if (!claims || claims.length === 0) {
-                container.innerHTML = '<p>No active claims.</p>';
+                container.innerHTML = '<p style="color: #666;">No pending claims.</p>';
                 return;
             }
 
             container.innerHTML = claims.map(c => `
                 <div class="card">
-                    <h3>Claim for: ${escapeHtml(c.itemTitle)}</h3>
-                    <p><strong>Claimant:</strong> ${escapeHtml(c.claimantName)}</p>
-                    <p><strong>Contact:</strong> ${escapeHtml(c.claimantContact)}</p>
-                    <p><strong>Answer/Proof:</strong> ${escapeHtml(c.claimAnswer)}</p>
-                    <p><small>Submitted on: ${escapeHtml(c.submittedAt)}</small></p>
-                    <button onclick="approveClaim('${c.claimId}')" style="background:#2ecc71; color:white; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;">Approve Claim</button>
-                    <button onclick="rejectClaim('${c.claimId}')" style="background:#e74c3c; color:white; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer; margin-left:8px;">Reject</button>
+                    <h3 style="color: #1e293b;">Claim Request for: ${escapeHtml(c.itemTitle)}</h3>
+                    <p style="margin-top: 0.5rem;"><strong>Claimant Name:</strong> ${escapeHtml(c.claimantName)}</p>
+                    <p><strong>Contact Info:</strong> ${escapeHtml(c.claimantContact)}</p>
+                    <p><strong>Proof / Secret Answer:</strong> ${escapeHtml(c.claimAnswer)}</p>
+                    <p style="margin-bottom: 1rem;"><small style="color:#64748b;">Submitted Date: ${escapeHtml(c.submittedAt)}</small></p>
+                    <button onclick="approveClaim('${c.claimId}')" class="btn-approve">Approve Claim</button>
+                    <button onclick="rejectClaim('${c.claimId}')" class="btn-reject">Reject Claim</button>
                 </div>
             `).join('');
         }
 
+        async function verifyAdminPassword(e) {
+            e.preventDefault();
+            const password = document.getElementById('adminPasswordInput').value;
+            
+            const res = await fetch(`${API_BASE}/api/admin/verify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: password })
+            });
+
+            if (res.ok) {
+                isAdminAuthenticated = true;
+                document.getElementById('adminAuthModal').style.display = 'none';
+                document.getElementById('adminPasswordInput').value = '';
+                showTabDirect('claims');
+            } else {
+                alert("Incorrect Admin Password!");
+            }
+        }
+
+        function cancelAdminAuth() {
+            document.getElementById('adminAuthModal').style.display = 'none';
+        }
+
         async function approveClaim(claimId) {
-            if (confirm("Approve claim and remove item from listing?")) {
+            if (confirm("Approve claim and remove item from active listing?")) {
                 const res = await fetch(`${API_BASE}/api/claims/${claimId}/approve`, { method: 'POST' });
                 if (res.ok) await loadSystemData();
             }
         }
 
         async function rejectClaim(claimId) {
-            if (confirm("Reject this claim?")) {
+            if (confirm("Reject and delete this claim request?")) {
                 const res = await fetch(`${API_BASE}/api/claims/${claimId}/reject`, { method: 'DELETE' });
                 if (res.ok) await loadSystemData();
             }
@@ -415,6 +572,14 @@
         }
 
         function switchTab(tabId) {
+            if (tabId === 'claims' && !isAdminAuthenticated) {
+                document.getElementById('adminAuthModal').style.display = 'flex';
+                return;
+            }
+            showTabDirect(tabId);
+        }
+
+        function showTabDirect(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
             
@@ -429,7 +594,6 @@
             });
         }
 
-        // Auto-refresh ng data bawat 4 na segundo para real-time updates sa lahat ng phones
         window.onload = () => {
             loadSystemData();
             setInterval(loadSystemData, 4000);
