@@ -1,17 +1,11 @@
-let items = [];
-let claims = [];
-let isAdmin = false;
-let currentTypeFilter = 'ALL';
-let currentRoleFilter = 'ALL';
+// Gumawa ng base URL helper para siguradong sa Flask backend pumupunta ang request
+const API_BASE = window.location.origin; // O kaya: 'http://192.168.1.15:5000'
 
-document.getElementById('date').valueAsDate = new Date();
-
-// Load data directly from Python REST API
 async function loadSystemData() {
     try {
         const [itemsRes, claimsRes] = await Promise.all([
-            fetch('/api/items'),
-            fetch('/api/claims')
+            fetch(`${API_BASE}/api/items`),
+            fetch(`${API_BASE}/api/claims`)
         ]);
         
         items = await itemsRes.json();
@@ -44,70 +38,25 @@ async function handleFormSubmit(e) {
         secretQuestion: itemType === 'FOUND' ? document.getElementById('secretQuestion').value : null
     };
 
-    const res = await fetch('/api/items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newItem)
-    });
+    try {
+        const res = await fetch(`${API_BASE}/api/items`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newItem)
+        });
 
-    if (res.ok) {
-        alert("Report successfully posted!");
-        document.getElementById('reportForm').reset();
-        document.getElementById('date').valueAsDate = new Date();
-        toggleFoundFields();
-        await loadSystemData();
-        switchTab('browse');
+        if (res.ok) {
+            alert("Report successfully posted!");
+            document.getElementById('reportForm').reset();
+            document.getElementById('date').valueAsDate = new Date();
+            toggleFoundFields();
+            await loadSystemData();
+            switchTab('browse');
+        } else {
+            alert("Nagkaroon ng error sa pag-save ng report.");
+        }
+    } catch (err) {
+        alert("Hindi maabot ang server. Siguraduhing nakakonekta sa parehong network.");
+        console.error(err);
     }
 }
-
-async function submitClaim(e) {
-    e.preventDefault();
-    const itemId = document.getElementById('claimItemId').value;
-    const item = items.find(i => i.id === itemId);
-
-    const newClaim = {
-        claimId: 'claim_' + Date.now(),
-        itemId: itemId,
-        itemTitle: item ? item.title : 'Item',
-        claimantName: document.getElementById('claimantName').value,
-        claimantContact: document.getElementById('claimantContact').value,
-        claimAnswer: document.getElementById('claimAnswer').value,
-        submittedAt: new Date().toLocaleDateString()
-    };
-
-    const res = await fetch('/api/claims', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newClaim)
-    });
-
-    if (res.ok) {
-        closeClaimModal();
-        alert("Claim submitted successfully!");
-        await loadSystemData();
-    }
-}
-
-async function approveClaim(claimId, itemId) {
-    if (confirm("Approve claim and remove this item from listing?")) {
-        const res = await fetch(`/api/claims/${claimId}/approve`, { method: 'POST' });
-        if (res.ok) await loadSystemData();
-    }
-}
-
-async function rejectClaim(claimId) {
-    if (confirm("Reject this claim?")) {
-        const res = await fetch(`/api/claims/${claimId}/reject`, { method: 'DELETE' });
-        if (res.ok) await loadSystemData();
-    }
-}
-
-// XSS Sanitization Helper
-function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>"']/g, function(m) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-    });
-}
-
-window.onload = loadSystemData;
