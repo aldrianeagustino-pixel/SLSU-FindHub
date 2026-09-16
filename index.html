@@ -39,9 +39,9 @@
     <main class="max-w-6xl mx-auto px-4 mt-6">
         
         <!-- Status Indicator Banner -->
-        <div id="statusBanner" class="mb-4 p-2.5 rounded-lg text-xs font-semibold flex justify-between items-center bg-sky-50 text-sky-700 border border-sky-200">
-            <span><i class="fa-solid fa-wifi mr-1.5"></i> Live Sync Active (Cloud Storage Connected)</span>
-            <button onclick="fetchOnlineData()" class="underline hover:opacity-80"><i class="fa-solid fa-rotate-right mr-1"></i> Refresh Data</button>
+        <div id="statusBanner" class="mb-4 p-2.5 rounded-lg text-xs font-semibold flex justify-between items-center bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span><i class="fa-solid fa-circle-check mr-1.5"></i> System Active (Standalone Mode - Conflict Free)</span>
+            <button onclick="loadSystemData()" class="underline hover:opacity-80"><i class="fa-solid fa-rotate-right mr-1"></i> Reload Data</button>
         </div>
 
         <!-- Navigation Tabs -->
@@ -95,9 +95,7 @@
             </div>
 
             <!-- Items Grid -->
-            <div id="itemsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                <!-- Dynamic cards will load here -->
-            </div>
+            <div id="itemsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
             
             <div id="noResults" class="hidden text-center py-12 bg-white rounded-xl border border-slate-100 shadow-sm">
                 <i class="fa-solid fa-box-open text-4xl text-slate-300 mb-2"></i>
@@ -112,7 +110,6 @@
                 <p class="text-xs text-slate-500 mb-6">Fill out the form accurately to help connect lost items with their owners across SLSU.</p>
 
                 <form id="reportForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
-                    <!-- User Role Selection -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">I am reporting as a: *</label>
                         <div class="grid grid-cols-2 gap-3">
@@ -125,7 +122,6 @@
                         </div>
                     </div>
 
-                    <!-- Report Type Selection -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Report Type: *</label>
                         <div class="grid grid-cols-2 gap-3">
@@ -140,7 +136,6 @@
                         </div>
                     </div>
 
-                    <!-- Title & Category -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Item Title / Name *</label>
@@ -159,11 +154,10 @@
                         </div>
                     </div>
 
-                    <!-- Location & Date -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Location (Where lost/found) *</label>
-                            <input type="text" id="location" required placeholder="e.g. SLSU Library 2nd Floor, Gymnasium" class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <input type="text" id="location" required placeholder="e.g. SLSU Library 2nd Floor" class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Date *</label>
@@ -171,33 +165,29 @@
                         </div>
                     </div>
 
-                    <!-- Extra Found Fields -->
                     <div id="foundOnlyFields" class="hidden space-y-4 bg-emerald-50 p-4 rounded-lg border border-emerald-100">
                         <div>
                             <label class="block text-xs font-semibold text-emerald-900 mb-1">Current Custody / Turnover Location *</label>
-                            <input type="text" id="turnoverLocation" placeholder="e.g. Surrendered to Security Office Guard House" class="w-full p-2.5 text-xs bg-white border border-emerald-200 rounded-lg outline-none">
+                            <input type="text" id="turnoverLocation" placeholder="e.g. Security Guard House" class="w-full p-2.5 text-xs bg-white border border-emerald-200 rounded-lg outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-emerald-900 mb-1">Secret Verification Question (For owner verification)</label>
-                            <input type="text" id="secretQuestion" placeholder="e.g. What is the wallpaper image of the phone?" class="w-full p-2.5 text-xs bg-white border border-emerald-200 rounded-lg outline-none">
+                            <label class="block text-xs font-semibold text-emerald-900 mb-1">Secret Verification Question</label>
+                            <input type="text" id="secretQuestion" placeholder="e.g. What is the wallpaper image?" class="w-full p-2.5 text-xs bg-white border border-emerald-200 rounded-lg outline-none">
                         </div>
                     </div>
 
-                    <!-- Description -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Detailed Description *</label>
-                        <textarea id="description" rows="3" required placeholder="Provide distinguishing marks, colors, brand names..." class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+                        <textarea id="description" rows="3" required placeholder="Provide distinguishing marks, colors, etc." class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
                     </div>
 
-                    <!-- Contact Details -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Reporter Contact Info (Email / Phone) *</label>
-                        <input type="text" id="contact" required placeholder="e.g. student@slsu.edu.ph or 09123456789" class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <input type="text" id="contact" required placeholder="e.g. student@slsu.edu.ph" class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
                     </div>
 
-                    <!-- Submit Button -->
                     <button type="submit" id="submitBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition shadow">
-                        <i class="fa-solid fa-paper-plane mr-1"></i> Post Live Report Online
+                        <i class="fa-solid fa-paper-plane mr-1"></i> Post Report
                     </button>
                 </form>
             </div>
@@ -208,18 +198,16 @@
             <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex justify-between items-center">
                 <div>
                     <h3 class="text-sm font-bold text-amber-900"><i class="fa-solid fa-user-shield mr-2"></i> Admin Panel: Claim Verification Console</h3>
-                    <p class="text-xs text-amber-700">Review pending ownership claims submitted by students and faculty.</p>
+                    <p class="text-xs text-amber-700">Review pending ownership claims.</p>
                 </div>
                 <button onclick="toggleAdminPanel()" class="text-xs text-amber-800 underline font-semibold">Exit Admin Mode</button>
             </div>
 
-            <div id="claimsContainer" class="space-y-4">
-                <!-- Claims dynamic content -->
-            </div>
+            <div id="claimsContainer" class="space-y-4"></div>
         </section>
     </main>
 
-    <!-- Modal for Item Details & Claim Submission -->
+    <!-- Modal Item Details -->
     <div id="itemModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 relative">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
@@ -229,14 +217,14 @@
         </div>
     </div>
 
-    <!-- Modal for Submitting Claim -->
+    <!-- Modal Submit Claim -->
     <div id="claimModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative">
             <button onclick="closeClaimModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <h3 class="text-lg font-bold text-slate-800 mb-2">Claim / Ownership Verification</h3>
-            <p class="text-xs text-slate-500 mb-4">Submit your details to verify ownership. The system admin will review your answer.</p>
+            <p class="text-xs text-slate-500 mb-4">Submit details to verify ownership.</p>
             
             <form onsubmit="submitClaim(event)" class="space-y-3">
                 <input type="hidden" id="claimItemId">
@@ -245,15 +233,15 @@
                     <input type="text" id="claimantName" required class="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-lg outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Your Contact Info (Phone/Email) *</label>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Your Contact Info *</label>
                     <input type="text" id="claimantContact" required class="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-lg outline-none">
                 </div>
                 <div id="modalQuestionBox" class="hidden">
                     <label id="modalQuestionLabel" class="block text-xs font-semibold text-indigo-700 mb-1"></label>
-                    <textarea id="claimAnswer" rows="2" placeholder="Provide proof or answer the secret question..." class="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-lg outline-none"></textarea>
+                    <textarea id="claimAnswer" rows="2" placeholder="Answer or proof..." class="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-lg outline-none"></textarea>
                 </div>
-                <button type="submit" id="claimSubmitBtn" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition">
-                    Submit Ownership Claim
+                <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition">
+                    Submit Claim
                 </button>
             </form>
         </div>
@@ -261,13 +249,6 @@
 
     <!-- Application Script -->
     <script>
-        // ==========================================
-        // ONLINE GLOBAL CLOUD DATABASE CONFIGURATION
-        // ==========================================
-        const BIN_ID = '664f3317e41b4d34e40889ef';
-        const API_KEY = '$2a$10$wT8v59kC/gZ7rVlRsmr6bO5UaGq/V2XhI7.8r3s5C/WzZpYgHk0eW';
-        const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-
         let items = [];
         let claims = [];
         let isAdmin = false;
@@ -276,53 +257,54 @@
 
         document.getElementById('date').valueAsDate = new Date();
 
-        // 1. Fetch Online Data (Reads data from Cloud Storage)
-        async function fetchOnlineData() {
+        // High Stability Storage Engine
+        function loadSystemData() {
             try {
-                const response = await fetch(API_URL + '/latest', {
-                    headers: { 'X-Master-Key': API_KEY }
-                });
-                const result = await response.json();
-                if (result.record) {
-                    items = result.record.items || [];
-                    claims = result.record.claims || [];
-                    filterItems();
-                    renderClaims();
-                    updateClaimsBadge();
+                const storedItems = localStorage.getItem('slsu_items_data');
+                const storedClaims = localStorage.getItem('slsu_claims_data');
+                
+                items = storedItems ? JSON.parse(storedItems) : getInitialSeedData();
+                claims = storedClaims ? JSON.parse(storedClaims) : [];
+                
+                if(!storedItems) saveSystemData();
+
+                filterItems();
+                renderClaims();
+                updateClaimsBadge();
+            } catch (e) {
+                console.error("Storage read error", e);
+            }
+        }
+
+        function saveSystemData() {
+            localStorage.setItem('slsu_items_data', JSON.stringify(items));
+            localStorage.setItem('slsu_claims_data', JSON.stringify(claims));
+            filterItems();
+            renderClaims();
+            updateClaimsBadge();
+        }
+
+        function getInitialSeedData() {
+            return [
+                {
+                    id: 'seed_1',
+                    userRole: 'STUDENT',
+                    title: 'SLSU Student ID Card',
+                    type: 'FOUND',
+                    category: 'IDs & Cards',
+                    location: 'College of Engineering Hallway',
+                    date: new Date().toISOString().split('T')[0],
+                    description: 'Found near Room 204. Name on ID starts with M.',
+                    contact: 'guardhouse@slsu.edu.ph',
+                    turnoverLocation: 'Main Security Office',
+                    secretQuestion: 'What is the course listed on the ID?'
                 }
-            } catch (err) {
-                console.error("Cloud Fetch Error:", err);
-            }
+            ];
         }
 
-        // 2. Push Online Data (Saves data to Cloud Storage for everyone)
-        async function saveOnlineData() {
-            try {
-                await fetch(API_URL, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': API_KEY
-                    },
-                    body: JSON.stringify({ items: items, claims: claims })
-                });
-                fetchOnlineData();
-                return true;
-            } catch (err) {
-                console.error("Cloud Save Error:", err);
-                alert("Failed to sync with live cloud storage. Please check internet connection.");
-                return false;
-            }
-        }
+        window.onload = loadSystemData;
 
-        // Initialize application on load
-        window.onload = () => {
-            fetchOnlineData();
-            // Auto refresh items every 15 seconds
-            setInterval(fetchOnlineData, 15000);
-        };
-
-        // Navigation Controls
+        // UI Routing Functions
         function switchTab(tab) {
             document.getElementById('browseSection').classList.add('hidden');
             document.getElementById('reportSection').classList.add('hidden');
@@ -351,7 +333,7 @@
 
             if (isAdmin) {
                 adminTab.classList.remove('hidden');
-                adminBtnText.innerText = "Exit Admin Mode";
+                adminBtnText.innerText = "Exit Admin";
                 switchTab('admin');
             } else {
                 adminTab.classList.add('hidden');
@@ -362,21 +344,11 @@
 
         function toggleFoundFields() {
             const isFound = document.querySelector('input[name="itemType"]:checked').value === 'FOUND';
-            const foundFields = document.getElementById('foundOnlyFields');
-            if (isFound) {
-                foundFields.classList.remove('hidden');
-            } else {
-                foundFields.classList.add('hidden');
-            }
+            document.getElementById('foundOnlyFields').classList.toggle('hidden', !isFound);
         }
 
-        // Submit Report
-        async function handleFormSubmit(e) {
+        function handleFormSubmit(e) {
             e.preventDefault();
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Syncing with Cloud Database...";
-
             const userRole = document.querySelector('input[name="userRole"]:checked').value;
             const itemType = document.querySelector('input[name="itemType"]:checked').value;
 
@@ -395,86 +367,61 @@
             };
 
             items.unshift(newItem);
-            const success = await saveOnlineData();
+            saveSystemData();
 
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane mr-1"></i> Post Live Report Online`;
-
-            if (success) {
-                alert("Report successfully posted and visible to all online users!");
-                document.getElementById('reportForm').reset();
-                document.getElementById('date').valueAsDate = new Date();
-                toggleFoundFields();
-                switchTab('browse');
-            }
+            alert("Report successfully posted!");
+            document.getElementById('reportForm').reset();
+            document.getElementById('date').valueAsDate = new Date();
+            toggleFoundFields();
+            switchTab('browse');
         }
 
-        // Submit Ownership Claim
-        async function submitClaim(e) {
+        function submitClaim(e) {
             e.preventDefault();
-            const claimBtn = document.getElementById('claimSubmitBtn');
-            claimBtn.disabled = true;
-            claimBtn.innerText = "Submitting Claim...";
-
             const itemId = document.getElementById('claimItemId').value;
-            const claimantName = document.getElementById('claimantName').value;
-            const claimantContact = document.getElementById('claimantContact').value;
-            const claimAnswer = document.getElementById('claimAnswer').value;
-
             const item = items.find(i => i.id === itemId);
 
             const newClaim = {
                 claimId: 'claim_' + Date.now(),
                 itemId: itemId,
-                itemTitle: item ? item.title : 'Unknown Item',
-                claimantName: claimantName,
-                claimantContact: claimantContact,
-                claimAnswer: claimAnswer,
+                itemTitle: item ? item.title : 'Item',
+                claimantName: document.getElementById('claimantName').value,
+                claimantContact: document.getElementById('claimantContact').value,
+                claimAnswer: document.getElementById('claimAnswer').value,
                 submittedAt: new Date().toLocaleDateString()
             };
 
             claims.unshift(newClaim);
-            await saveOnlineData();
+            saveSystemData();
 
-            claimBtn.disabled = false;
-            claimBtn.innerText = "Submit Ownership Claim";
             closeClaimModal();
-            alert("Ownership claim submitted for review!");
+            alert("Claim submitted successfully!");
         }
 
-        // Admin Action: Approve Claim
-        async function approveClaim(claimId, itemId) {
-            if (confirm("Are you sure this claimant is the owner? Approving will remove this item from the live portal.")) {
+        function approveClaim(claimId, itemId) {
+            if (confirm("Approve claim and remove this item from listing?")) {
                 items = items.filter(i => i.id !== itemId);
                 claims = claims.filter(c => c.claimId !== claimId);
-                await saveOnlineData();
-                alert("Claim Approved! Item removed from public listing.");
+                saveSystemData();
             }
         }
 
-        // Admin Action: Reject Claim
-        async function rejectClaim(claimId) {
-            if (confirm("Reject this claim request?")) {
+        function rejectClaim(claimId) {
+            if (confirm("Reject this claim?")) {
                 claims = claims.filter(c => c.claimId !== claimId);
-                await saveOnlineData();
+                saveSystemData();
             }
         }
 
-        // Filtering & Rendering
         function filterItems() {
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             const categoryQuery = document.getElementById('categorySelect').value;
 
             const filtered = items.filter(item => {
-                const title = item.title ? item.title.toLowerCase() : '';
-                const desc = item.description ? item.description.toLowerCase() : '';
-                const loc = item.location ? item.location.toLowerCase() : '';
-
-                const matchesSearch = title.includes(searchQuery) || desc.includes(searchQuery) || loc.includes(searchQuery);
+                const matchesSearch = (item.title + ' ' + item.description + ' ' + item.location).toLowerCase().includes(searchQuery);
                 const matchesCategory = categoryQuery === 'ALL' || item.category === categoryQuery;
                 const matchesType = currentTypeFilter === 'ALL' || item.type === currentTypeFilter;
                 const matchesRole = currentRoleFilter === 'ALL' || item.userRole === currentRoleFilter;
-
                 return matchesSearch && matchesCategory && matchesType && matchesRole;
             });
 
@@ -486,12 +433,7 @@
             const noResults = document.getElementById('noResults');
             container.innerHTML = '';
 
-            if (list.length === 0) {
-                noResults.classList.remove('hidden');
-                return;
-            } else {
-                noResults.classList.add('hidden');
-            }
+            noResults.classList.toggle('hidden', list.length > 0);
 
             list.forEach(item => {
                 const isLost = item.type === 'LOST';
@@ -510,17 +452,10 @@
                         <p class="text-xs text-indigo-600 font-semibold mb-3">${escapeHtml(item.category)}</p>
                         <p class="text-xs text-slate-600 line-clamp-2 mb-4">${escapeHtml(item.description)}</p>
                     </div>
-
                     <div class="pt-3 border-t border-slate-100 space-y-1 text-xs text-slate-500">
-                        <div class="flex items-center gap-1.5">
-                            <i class="fa-solid fa-location-dot w-4 text-slate-400"></i> ${escapeHtml(item.location)}
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <i class="fa-solid fa-calendar w-4 text-slate-400"></i> ${item.date}
-                        </div>
-                        <button onclick="openModal('${item.id}')" class="w-full mt-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition">
-                            View Details & Claim
-                        </button>
+                        <div class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot w-4 text-slate-400"></i> ${escapeHtml(item.location)}</div>
+                        <div class="flex items-center gap-1.5"><i class="fa-solid fa-calendar w-4 text-slate-400"></i> ${item.date}</div>
+                        <button onclick="openModal('${item.id}')" class="w-full mt-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition">View & Claim</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -547,12 +482,8 @@
                         ${claim.claimAnswer ? `<p class="text-xs bg-amber-50 text-amber-900 p-2 rounded mt-2 border border-amber-100">Answer: ${escapeHtml(claim.claimAnswer)}</p>` : ''}
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="approveClaim('${claim.claimId}', '${claim.itemId}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold">
-                            Approve & Resolve
-                        </button>
-                        <button onclick="rejectClaim('${claim.claimId}')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold">
-                            Reject
-                        </button>
+                        <button onclick="approveClaim('${claim.claimId}', '${claim.itemId}')" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold">Approve</button>
+                        <button onclick="rejectClaim('${claim.claimId}')" class="px-3 py-1.5 bg-rose-600 text-white rounded-lg text-xs font-semibold">Reject</button>
                     </div>
                 `;
                 claimsList.appendChild(claimCard);
@@ -561,19 +492,13 @@
 
         function updateClaimsBadge() {
             const badge = document.getElementById('pendingClaimsBadge');
-            if (claims.length > 0) {
-                badge.innerText = claims.length;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
+            badge.innerText = claims.length;
+            badge.classList.toggle('hidden', claims.length === 0);
         }
 
         function setTypeFilter(type) {
             currentTypeFilter = type;
-            document.querySelectorAll('.type-filter-btn').forEach(btn => {
-                btn.className = "type-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200";
-            });
+            document.querySelectorAll('.type-filter-btn').forEach(b => b.className = "type-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-600");
             if (type === 'ALL') document.getElementById('filterTypeAll').className = "type-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white";
             if (type === 'LOST') document.getElementById('filterTypeLost').className = "type-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-rose-600 text-white";
             if (type === 'FOUND') document.getElementById('filterTypeFound').className = "type-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-600 text-white";
@@ -582,42 +507,30 @@
 
         function setRoleFilter(role) {
             currentRoleFilter = role;
-            document.querySelectorAll('.role-filter-btn').forEach(btn => {
-                btn.className = "role-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200";
-            });
+            document.querySelectorAll('.role-filter-btn').forEach(b => b.className = "role-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-600");
             if (role === 'ALL') document.getElementById('filterRoleAll').className = "role-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700 text-white";
             if (role === 'STUDENT') document.getElementById('filterRoleStudent').className = "role-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-sky-600 text-white";
             if (role === 'TEACHER') document.getElementById('filterRoleTeacher').className = "role-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-600 text-white";
             filterItems();
         }
 
-        // Modals Logic
         function openModal(id) {
             const item = items.find(i => i.id === id);
             if (!item) return;
 
-            const modalContent = document.getElementById('modalContent');
-            const isLost = item.type === 'LOST';
-            const badgeColor = isLost ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700';
-
-            modalContent.innerHTML = `
-                <span class="px-2.5 py-1 text-xs font-bold rounded-full ${badgeColor} inline-block mb-3">${item.type} ITEM</span>
+            document.getElementById('modalContent').innerHTML = `
+                <span class="px-2.5 py-1 text-xs font-bold rounded-full ${item.type === 'LOST' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'} inline-block mb-3">${item.type} ITEM</span>
                 <h2 class="text-xl font-bold text-slate-800 mb-1">${escapeHtml(item.title)}</h2>
                 <p class="text-xs text-indigo-600 font-semibold mb-4">${escapeHtml(item.category)}</p>
-
-                <div class="space-y-2 text-xs text-slate-600 mb-5 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                    <p><strong class="text-slate-800">Location:</strong> ${escapeHtml(item.location)}</p>
-                    <p><strong class="text-slate-800">Date:</strong> ${item.date}</p>
-                    <p><strong class="text-slate-800">Contact:</strong> ${escapeHtml(item.contact)}</p>
-                    ${item.turnoverLocation ? `<p><strong class="text-amber-800">Custody:</strong> ${escapeHtml(item.turnoverLocation)}</p>` : ''}
-                    <p class="pt-2 border-t border-slate-200"><strong class="text-slate-800">Details:</strong> ${escapeHtml(item.description)}</p>
+                <div class="space-y-2 text-xs text-slate-600 mb-5 bg-slate-50 p-3 rounded-lg border">
+                    <p><strong>Location:</strong> ${escapeHtml(item.location)}</p>
+                    <p><strong>Date:</strong> ${item.date}</p>
+                    <p><strong>Contact:</strong> ${escapeHtml(item.contact)}</p>
+                    ${item.turnoverLocation ? `<p><strong>Custody:</strong> ${escapeHtml(item.turnoverLocation)}</p>` : ''}
+                    <p class="pt-2 border-t"><strong>Details:</strong> ${escapeHtml(item.description)}</p>
                 </div>
-
-                <button onclick="openClaimModal('${item.id}')" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg transition">
-                    <i class="fa-solid fa-hand-holding-hand mr-1"></i> Claim / Verify Ownership
-                </button>
+                <button onclick="openClaimModal('${item.id}')" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg transition">Claim / Verify Ownership</button>
             `;
-
             document.getElementById('itemModal').classList.remove('hidden');
         }
 
@@ -632,14 +545,8 @@
             const questionBox = document.getElementById('modalQuestionBox');
             const questionLabel = document.getElementById('modalQuestionLabel');
 
-            if (item.secretQuestion) {
-                questionLabel.innerText = `Verification Question: "${item.secretQuestion}" *`;
-                questionBox.classList.remove('hidden');
-            } else {
-                questionLabel.innerText = `Verification Details (Optional):`;
-                questionBox.classList.remove('hidden');
-            }
-
+            questionLabel.innerText = item.secretQuestion ? `Verification Question: "${item.secretQuestion}" *` : `Verification Details:`;
+            questionBox.classList.remove('hidden');
             document.getElementById('claimModal').classList.remove('hidden');
         }
 
