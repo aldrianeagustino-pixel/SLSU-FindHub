@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLSU Lost & Found Portal</title>
+    <style>
+        :root {
+            --primary: #0066cc;
+            --bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --text: #333333;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #004b99;
+        }
+        nav button {
+            background: none;
+            border: none;
+            color: white;
+            padding: 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        nav button:hover, nav button.active {
+            background: #003366;
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button.btn-submit {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: white;
+            font-weight: bold;
+        }
+        .badge-lost { background: #e74c3c; }
+        .badge-found { background: #2ecc71; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>SLSU Lost & Found Portal</h1>
+    </header>
+
+    <nav>
+        <button id="btn-browse" class="active" onclick="switchTab('browse')">Browse Items</button>
+        <button id="btn-report" onclick="switchTab('report')">Report Item</button>
+        <button id="btn-claims" onclick="switchTab('claims')">Claims Admin <span id="claimsBadge"></span></button>
+    </nav>
+
+    <div class="container">
+        <!-- BROWSE TAB -->
+        <div id="browse" class="tab-content active">
+            <h2>Reported Items</h2>
+            <div id="itemsContainer"></div>
+        </div>
+
+        <!-- REPORT TAB -->
+        <div id="report" class="tab-content">
+            <div class="card">
+                <h2>Submit a Report</h2>
+                <form id="reportForm" onsubmit="handleFormSubmit(event)">
+                    <div class="form-group">
+                        <label>I am a:</label>
+                        <input type="radio" name="userRole" value="STUDENT" checked> Student
+                        <input type="radio" name="userRole" value="TEACHER"> Teacher
+                    </div>
+
+                    <div class="form-group">
+                        <label>Report Type:</label>
+                        <input type="radio" name="itemType" value="LOST" checked onclick="toggleFoundFields()"> Lost Item
+                        <input type="radio" name="itemType" value="FOUND" onclick="toggleFoundFields()"> Found Item
+                    </div>
+
+                    <div class="form-group">
+                        <label>Item Title</label>
+                        <input type="text" id="title" required placeholder="e.g., Black Scientific Calculator">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="category" required>
+                            <option value="Electronics">Electronics</option>
+                            <option value="IDs & Cards">IDs & Cards</option>
+                            <option value="Books & Documents">Books & Documents</option>
+                            <option value="Personal Belongings">Personal Belongings</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Location (Where lost/found)</label>
+                        <input type="text" id="location" required placeholder="e.g., University Library 2nd Floor">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="description" rows="3" required placeholder="Provide details like brand, color, or distinguishing marks."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contact Information</label>
+                        <input type="text" id="contact" required placeholder="Email or Phone Number">
+                    </div>
+
+                    <div id="foundFields" style="display: none;">
+                        <div class="form-group">
+                            <label>Turnover Location (Where the item is currently kept)</label>
+                            <input type="text" id="turnoverLocation" placeholder="e.g., Main Security Office">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Secret Question for Ownership Verification</label>
+                            <input type="text" id="secretQuestion" placeholder="e.g., What stickers are attached on the back?">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Submit Report</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- CLAIMS TAB -->
+        <div id="claims" class="tab-content">
+            <h2>Pending Claims</h2>
+            <div id="claimsContainer"></div>
+        </div>
+    </div>
+
+    <!-- CLAIM MODAL -->
+    <div id="claimModal" class="modal">
+        <div class="modal-content">
+            <h3>Claim Item</h3>
+            <form id="claimForm" onsubmit="submitClaim(event)">
+                <input type="hidden" id="claimItemId">
+                
+                <p id="modalSecretQuestion" style="font-weight: bold; color: #d35400;"></p>
+
+                <div class="form-group">
+                    <label>Your Full Name</label>
+                    <input type="text" id="claimantName" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Contact Info</label>
+                    <input type="text" id="claimantContact" required>
+                </div>
+
+                <div class="form-group" id="answerGroup">
+                    <label>Answer to Secret Question / Verification Details</label>
+                    <textarea id="claimAnswer" rows="2"></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">Submit Claim</button>
+                <button type="button" onclick="closeClaimModal()" style="background:#888; color:white; border:none; padding:0.75rem 1.5rem; border-radius:4px; margin-left:8px;">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Kusa nitong kukunin ang live URL mula sa Render Server (e.g. https://your-app.onrender.com)
+        const API_BASE = window.location.origin;
+
+        let items = [];
+        let claims = [];
+
+        document.getElementById('date').valueAsDate = new Date();
+
+        // Automatic na nag-fe-fetch sa Render backend server
+        async function loadSystemData() {
+            try {
+                const [itemsRes, claimsRes] = await Promise.all([
+                    fetch(`${API_BASE}/api/items`),
+                    fetch(`${API_BASE}/api/claims`)
+                ]);
+                
+                items = await itemsRes.json();
+                claims = await claimsRes.json();
+
+                renderItems();
+                renderClaims();
+            } catch (e) {
+                console.error("API Fetch Error:", e);
+            }
+        }
+
+        function renderItems() {
+            const container = document.getElementById('itemsContainer');
+            if (!items || items.length === 0) {
+                container.innerHTML = '<p>No items reported yet.</p>';
+                return;
+            }
+
+            container.innerHTML = items.map(item => `
+                <div class="card">
+                    <span class="badge ${item.type === 'LOST' ? 'badge-lost' : 'badge-found'}">${escapeHtml(item.type)}</span>
+                    <small style="margin-left: 8px; color: #666;">[${escapeHtml(item.userRole)}]</small>
+                    <h3>${escapeHtml(item.title)}</h3>
+                    <p><strong>Category:</strong> ${escapeHtml(item.category)}</p>
+                    <p><strong>Location:</strong> ${escapeHtml(item.location)}</p>
+                    <p><strong>Date:</strong> ${escapeHtml(item.date)}</p>
+                    <p><strong>Description:</strong> ${escapeHtml(item.description)}</p>
+                    ${item.turnoverLocation ? `<p><strong>Turnover Location:</strong> ${escapeHtml(item.turnoverLocation)}</p>` : ''}
+                    <p><strong>Contact:</strong> ${escapeHtml(item.contact)}</p>
+                    ${item.type === 'FOUND' ? `<button onclick="openClaimModal('${item.id}')" class="btn-submit" style="margin-top:10px;">Claim This Item</button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            const userRole = document.querySelector('input[name="userRole"]:checked').value;
+            const itemType = document.querySelector('input[name="itemType"]:checked').value;
+
+            const newItem = {
+                id: 'item_' + Date.now(),
+                userRole: userRole,
+                title: document.getElementById('title').value,
+                type: itemType,
+                category: document.getElementById('category').value,
+                location: document.getElementById('location').value,
+                date: document.getElementById('date').value,
+                description: document.getElementById('description').value,
+                contact: document.getElementById('contact').value,
+                turnoverLocation: itemType === 'FOUND' ? document.getElementById('turnoverLocation').value : null,
+                secretQuestion: itemType === 'FOUND' ? document.getElementById('secretQuestion').value : null
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/api/items`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newItem)
+                });
+
+                if (res.ok) {
+                    alert("Report successfully posted!");
+                    document.getElementById('reportForm').reset();
+                    document.getElementById('date').valueAsDate = new Date();
+                    toggleFoundFields();
+                    await loadSystemData();
+                    switchTab('browse');
+                } else {
+                    alert("Failed to save report.");
+                }
+            } catch (err) {
+                alert("Cannot connect to server. Check your connection.");
+                console.error(err);
+            }
+        }
+
+        function openClaimModal(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById('claimItemId').value = itemId;
+            const secretQ = document.getElementById('modalSecretQuestion');
+            
+            if (item.secretQuestion) {
+                secretQ.innerText = "Question: " + item.secretQuestion;
+            } else {
+                secretQ.innerText = "";
+            }
+
+            document.getElementById('claimModal').style.display = 'flex';
+        }
+
+        function closeClaimModal() {
+            document.getElementById('claimModal').style.display = 'none';
+            document.getElementById('claimForm').reset();
+        }
+
+        async function submitClaim(e) {
+            e.preventDefault();
+            const itemId = document.getElementById('claimItemId').value;
+            const item = items.find(i => i.id === itemId);
+
+            const newClaim = {
+                claimId: 'claim_' + Date.now(),
+                itemId: itemId,
+                itemTitle: item ? item.title : 'Item',
+                claimantName: document.getElementById('claimantName').value,
+                claimantContact: document.getElementById('claimantContact').value,
+                claimAnswer: document.getElementById('claimAnswer').value,
+                submittedAt: new Date().toLocaleDateString()
+            };
+
+            const res = await fetch(`${API_BASE}/api/claims`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newClaim)
+            });
+
+            if (res.ok) {
+                closeClaimModal();
+                alert("Claim submitted successfully!");
+                await loadSystemData();
+            }
+        }
+
+        function renderClaims() {
+            const container = document.getElementById('claimsContainer');
+            document.getElementById('claimsBadge').innerText = claims.length ? `(${claims.length})` : '';
+
+            if (!claims || claims.length === 0) {
+                container.innerHTML = '<p>No active claims.</p>';
+                return;
+            }
+
+            container.innerHTML = claims.map(c => `
+                <div class="card">
+                    <h3>Claim for: ${escapeHtml(c.itemTitle)}</h3>
+                    <p><strong>Claimant:</strong> ${escapeHtml(c.claimantName)}</p>
+                    <p><strong>Contact:</strong> ${escapeHtml(c.claimantContact)}</p>
+                    <p><strong>Answer/Proof:</strong> ${escapeHtml(c.claimAnswer)}</p>
+                    <p><small>Submitted on: ${escapeHtml(c.submittedAt)}</small></p>
+                    <button onclick="approveClaim('${c.claimId}')" style="background:#2ecc71; color:white; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;">Approve Claim</button>
+                    <button onclick="rejectClaim('${c.claimId}')" style="background:#e74c3c; color:white; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer; margin-left:8px;">Reject</button>
+                </div>
+            `).join('');
+        }
+
+        async function approveClaim(claimId) {
+            if (confirm("Approve claim and remove item from listing?")) {
+                const res = await fetch(`${API_BASE}/api/claims/${claimId}/approve`, { method: 'POST' });
+                if (res.ok) await loadSystemData();
+            }
+        }
+
+        async function rejectClaim(claimId) {
+            if (confirm("Reject this claim?")) {
+                const res = await fetch(`${API_BASE}/api/claims/${claimId}/reject`, { method: 'DELETE' });
+                if (res.ok) await loadSystemData();
+            }
+        }
+
+        function toggleFoundFields() {
+            const itemType = document.querySelector('input[name="itemType"]:checked').value;
+            document.getElementById('foundFields').style.display = itemType === 'FOUND' ? 'block' : 'none';
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('btn-' + tabId).classList.add('active');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+
+        // Auto-refresh ng data bawat 4 na segundo para real-time updates sa lahat ng phones
+        window.onload = () => {
+            loadSystemData();
+            setInterval(loadSystemData, 4000);
+        };
+    </script>
+</body>
+</html>
