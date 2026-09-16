@@ -1,18 +1,31 @@
 import os
 from datetime import datetime
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-CORS(app)  # Pinapayagan ang mga requests mula sa kahit anong network/device
+CORS(app)
 
-# Database Configuration (SQLite)
+# Database Configuration
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Upload Configuration
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
 db = SQLAlchemy(app)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Admin Password Configuration (Maaari mong palitan ito)
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 
 # -------------------------------------------------------------------
 # Database Models
@@ -32,6 +45,7 @@ class Item(db.Model):
     contact = db.Column(db.String(100), nullable=False)
     turnover_location = db.Column(db.String(150), nullable=True)
     secret_question = db.Column(db.Text, nullable=True)
+    image_url = db.Column(db.String(300), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -46,7 +60,8 @@ class Item(db.Model):
             "description": self.description,
             "contact": self.contact,
             "turnoverLocation": self.turnover_location,
-            "secretQuestion": self.secret_question
+            "secretQuestion": self.secret_question,
+            "imageUrl": self.image_url
         }
 
 class Claim(db.Model):
@@ -71,7 +86,6 @@ class Claim(db.Model):
             "submittedAt": self.submitted_at
         }
 
-# Automatic DB Table Creation
 with app.app_context():
     db.create_all()
 
@@ -83,6 +97,10 @@ with app.app_context():
 def index():
     return render_template('index.html')
 
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 @app.route('/api/items', methods=['GET'])
 def get_items():
     items = Item.query.order_by(Item.created_at.desc()).all()
@@ -90,26 +108,51 @@ def get_items():
 
 @app.route('/api/items', methods=['POST'])
 def create_item():
-    data = request.get_json()
-    if not data:
-        return jsonify({"error": "Invalid payload"}), 400
+    user_role = request.form.get('userRole')
+    title = request.form.get('title')
+    item_type = request.form.get('type')
+    category = request.form.get('category')
+    location = request.form.get('location')
+    date = request.form.get('date')
+    description = request.form.get('description')
+    contact = request.form.get('contact')
+    turnover_location = request.form.get('turnoverLocation')
+    secret_question = request.form.get('secretQuestion')
+    item_id = request.form.get('id') or f"item_{int(datetime.utcnow().timestamp()*1000)}"
+
+    image_url = None
+    if 'image' in request.files:
+        file = request.files['image']
+        if file and file.filename != '' and allowed_file(file.filename):
+            filename = secure_filename(f"{item_id}_{file.filename}")
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            image_url = f"/uploads/{filename}"
 
     new_item = Item(
-        id=data.get('id'),
-        user_role=data.get('userRole'),
-        title=data.get('title'),
-        type=data.get('type'),
-        category=data.get('category'),
-        location=data.get('location'),
-        date=data.get('date'),
-        description=data.get('description'),
-        contact=data.get('contact'),
-        turnover_location=data.get('turnoverLocation'),
-        secret_question=data.get('secretQuestion')
+        id=item_id,
+        user_role=user_role,
+        title=title,
+        type=item_type,
+        category=category,
+        location=location,
+        date=date,
+        description=description,
+        contact=contact,
+        turnover_location=turnover_location,
+        secret_question=secret_question,
+        image_url=image_url
     )
     db.session.add(new_item)
     db.session.commit()
     return jsonify({"message": "Item registered successfully", "item": new_item.to_dict()}), 201
+
+@app.route('/api/admin/verify', methods=['POST'])
+def verify_admin():
+    data = request.get_json() or {}
+    password = data.get('password', '')
+    if password == ADMIN_PASSWORD:
+        return jsonify({"success": True}), 200
+    return jsonify({"success": False, "message": "Incorrect password"}), 401
 
 @app.route('/api/claims', methods=['GET'])
 def get_claims():
@@ -127,7 +170,7 @@ def create_claim():
         item_id=data.get('itemId'),
         item_title=data.get('itemTitle'),
         claimant_name=data.get('claimantName'),
-        claimantContact=data.get('claimantContact'),
+        claimant_contact=data.get('claimantContact'),
         claim_answer=data.get('claimAnswer'),
         submitted_at=data.get('submittedAt')
     )
